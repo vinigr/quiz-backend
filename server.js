@@ -9,6 +9,7 @@ const { port } = Config;
 const client = require('./src/database');
 
 const boot = () => {
+  console.clear();
   app.listen(port, () => {
     console.log(`Rodando na porta http://localhost:${port}`);
   });
@@ -16,7 +17,7 @@ const boot = () => {
 
 client.connect().then(() => {
   console.log('Banco conectado!');
-  return (boot);
+  boot();
 }).catch((err) => {
   console.log(`Erro ao conectar banco ${err}`);
 });
