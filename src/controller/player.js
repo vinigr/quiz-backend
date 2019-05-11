@@ -3,7 +3,7 @@ const Helper = require('../helper');
 
 const signUp = async (req, res) => {
   const {
-    nome, email, senha, curso, semestre = null,
+    nome, email, senha, curso,
   } = req.body;
 
   if (!nome || !email || !senha || !curso) {
@@ -16,8 +16,8 @@ const signUp = async (req, res) => {
 
   const hashPassword = Helper.hashPassword(senha);
 
-  const createQuery = 'INSERT INTO aluno(nome, email, senha, curso, semestre)VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
-  const values = [nome, email, hashPassword, curso, semestre];
+  const createQuery = 'INSERT INTO aluno(nome, email, senha, curso)VALUES ($1, $2, $3, $4) RETURNING *';
+  const values = [nome, email, hashPassword, curso];
 
   try {
     const { rows } = await client.query(createQuery, values);
@@ -31,6 +31,35 @@ const signUp = async (req, res) => {
   }
 };
 
+
+const SignIn = async (req, res) => {
+  const { email, senha } = req.body;
+
+  const createQuery = 'SELECT * FROM aluno where email = $1';
+
+  const { rows } = await client.query(createQuery, [email]);
+
+  if (!rows) {
+    return res
+      .status(404)
+      .send({ message: 'Usuário não encontrado.' });
+  }
+
+  const compareSenha = Helper.comparePassword(rows[0].senha, senha);
+
+  if (!compareSenha) {
+    return res
+      .status(400)
+      .send({ message: 'Credenciais inválidas.' });
+  }
+
+  rows[0].senha = undefined;
+
+  const token = Helper.generateToken(rows[0].id);
+  return res.status(201).send({ token });
+};
+
 module.exports = {
   signUp,
+  SignIn,
 };
