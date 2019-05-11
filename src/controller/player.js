@@ -3,10 +3,10 @@ const Helper = require('../helper');
 
 const signUp = async (req, res) => {
   const {
-    nome, email, username, senha, curso, semestre = null,
+    nome, email, senha, curso, semestre = null,
   } = req.body;
 
-  if (!nome || !email || !senha || !username || !curso) {
+  if (!nome || !email || !senha || !curso) {
     return res.status(400).send({ message: 'Some values are missing' });
   }
 
@@ -16,8 +16,8 @@ const signUp = async (req, res) => {
 
   const hashPassword = Helper.hashPassword(senha);
 
-  const createQuery = 'INSERT INTO aluno(nome, username, email, senha, curso, semestre)VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
-  const values = [nome, username, email, hashPassword, curso, semestre];
+  const createQuery = 'INSERT INTO aluno(nome, email, senha, curso, semestre)VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+  const values = [nome, email, hashPassword, curso, semestre];
 
   try {
     const { rows } = await client.query(createQuery, values);
