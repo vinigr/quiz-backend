@@ -1,12 +1,12 @@
-const client = require('../database');
+const { User } = require('../models');
 const Helper = require('../helper');
 
 const signUp = async (req, res) => {
   const {
-    nome, email, senha, curso,
+    name, email, password, groupUser = 1,
   } = req.body;
 
-  if (!nome || !email || !senha || !curso) {
+  if (!name || !email || !password) {
     return res.status(400).send({ message: 'Some values are missing' });
   }
 
@@ -14,14 +14,18 @@ const signUp = async (req, res) => {
     return res.status(400).send({ message: 'Please enter a valid email address' });
   }
 
-  const hashPassword = Helper.hashPassword(senha);
-
-  const createQuery = 'INSERT INTO aluno(nome, email, senha, curso)VALUES ($1, $2, $3, $4) RETURNING *';
-  const values = [nome, email, hashPassword, curso];
+  const hashPassword = Helper.hashPassword(password);
 
   try {
-    const { rows } = await client.query(createQuery, values);
-    const token = Helper.generateToken(rows[0].id);
+    const user = await User.create({
+      name,
+      email,
+      password: hashPassword,
+      groupUser,
+      isActive: true,
+    });
+    console.log(user.id);
+    const token = Helper.generateToken(user.id);
     return res.status(201).send({ token });
   } catch (error) {
     if (error.routine === '_bt_check_unique') {
