@@ -6,7 +6,7 @@ const app = require('@app/');
 
 const { port } = Config;
 
-const client = require('./src/database');
+const db = require('./src/models');
 
 const boot = () => {
   console.clear();
@@ -15,7 +15,7 @@ const boot = () => {
   });
 };
 
-client.connect().then(() => {
+db.sequelize.sync({ force: true }).then(() => {
   console.log('Banco conectado!');
   boot();
 }).catch((err) => {

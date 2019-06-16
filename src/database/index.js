@@ -1,18 +1,9 @@
-const { Client } = require('pg');
+const Sequelize = require('sequelize');
 const config = require('@config/');
 
-console.log(config.db);
-const client = new Client({
-  user: config.db.user,
+const sequelize = new Sequelize(config.db.user, config.db.user, config.db.password, {
   host: config.db.host,
-  database: config.db.database,
-  password: config.db.password,
-  port: config.db.port,
+  dialect: config.db.dialect,
 });
 
-// client.query('SELECT NOW()', (err, res) => {
-// console.log(err, res)
-// client.end()
-// })
-
-module.exports = client;
+module.exports = sequelize;
