@@ -23,7 +23,7 @@ db.sequelize.sync({ force: false }).then(() => {
   console.log(`Erro ao conectar banco ${err}`);
 });
 
-initial = () => {
+const initial = () => {
   GroupUser.create({
     id: 1,
     name: 'USER',

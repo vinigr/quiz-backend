@@ -37,19 +37,17 @@ const signUp = async (req, res) => {
 
 
 const SignIn = async (req, res) => {
-  const { email, senha } = req.body;
+  const { email, password } = req.body;
 
-  const createQuery = 'SELECT * FROM aluno where email = $1';
+  const user = await User.findOne({ where: { email } });
 
-  const { rows } = await client.query(createQuery, [email]);
-
-  if (!rows) {
+  if (!user) {
     return res
       .status(404)
       .send({ message: 'Usuário não encontrado.' });
   }
 
-  const compareSenha = Helper.comparePassword(rows[0].senha, senha);
+  const compareSenha = Helper.comparePassword(user.password, password);
 
   if (!compareSenha) {
     return res
@@ -57,9 +55,9 @@ const SignIn = async (req, res) => {
       .send({ message: 'Credenciais inválidas.' });
   }
 
-  rows[0].senha = undefined;
+  user.password = undefined;
 
-  const token = Helper.generateToken(rows[0].id);
+  const token = Helper.generateToken(user.id);
   return res.status(201).send({ token });
 };
 
