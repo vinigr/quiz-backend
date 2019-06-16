@@ -1,6 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
   const GroupUser = sequelize.define('GroupUser', {
-    name: DataTypes.STRING,
+    name: {
+      allowNull: false,
+      type: DataTypes.STRING(25),
+    },
   });
 
   GroupUser.associate = function (models) {

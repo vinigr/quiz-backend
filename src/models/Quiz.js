@@ -1,7 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
   const Quiz = sequelize.define('Quiz', {
-    name: DataTypes.STRING,
-    subjectId: DataTypes.INTEGER,
+    name: {
+      allowNull: false,
+      type: DataTypes.STRING(30),
+    },
+    subjectId: {
+      allowNull: false,
+      type: DataTypes.INTEGER,
+    },
   });
 
   Quiz.associate = function (models) {

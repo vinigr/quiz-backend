@@ -1,9 +1,21 @@
 module.exports = (sequelize, DataTypes) => {
   const Subject = sequelize.define('Subject', {
-    name: DataTypes.STRING,
-    topic: DataTypes.STRING,
-    accessCode: DataTypes.STRING,
-    userId: DataTypes.INTEGER,
+    name: {
+      type: DataTypes.STRING(60),
+      allowNull: false,
+    },
+    topic: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    accessCode: {
+      type: DataTypes.STRING(30),
+      allowNull: false,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   });
 
   Subject.associate = function (models) {
