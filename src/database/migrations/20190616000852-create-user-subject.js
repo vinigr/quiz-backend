@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('UserSubject', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('UserSubjects', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -25,5 +25,5 @@ module.exports = {
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('UserSubject'),
+  down: queryInterface => queryInterface.dropTable('UserSubjects'),
 };

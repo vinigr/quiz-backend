@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('Quiz', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('Quizzes', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -8,7 +8,7 @@ module.exports = {
     },
     name: {
       allowNull: false,
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(30),
     },
     subjectId: {
       allowNull: false,
@@ -25,5 +25,5 @@ module.exports = {
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('Quiz'),
+  down: queryInterface => queryInterface.dropTable('Quizzes'),
 };

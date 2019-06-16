@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('GroupUser', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('GroupUsers', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -8,7 +8,7 @@ module.exports = {
     },
     name: {
       allowNull: false,
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(25),
     },
     createdAt: {
       allowNull: false,
@@ -21,5 +21,5 @@ module.exports = {
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('GroupUser'),
+  down: queryInterface => queryInterface.dropTable('GroupUsers'),
 };

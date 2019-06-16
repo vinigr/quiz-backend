@@ -7,17 +7,17 @@ module.exports = {
       type: DataTypes.INTEGER,
     },
     name: {
+      type: DataTypes.STRING(60),
       allowNull: false,
-      type: DataTypes.STRING,
     },
     email: {
+      type: DataTypes.STRING(80),
       allowNull: false,
-      type: DataTypes.STRING,
       unique: true,
     },
     password: {
+      type: DataTypes.STRING(80),
       allowNull: false,
-      type: DataTypes.STRING,
     },
     isActive: {
       allowNull: false,

@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('Subject', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('Subjects', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -7,21 +7,20 @@ module.exports = {
       type: DataTypes.INTEGER,
     },
     name: {
+      type: DataTypes.STRING(60),
       allowNull: false,
-      type: DataTypes.STRING,
     },
     topic: {
+      type: DataTypes.STRING(100),
       allowNull: false,
-      type: DataTypes.STRING,
     },
     accessCode: {
+      type: DataTypes.STRING(30),
       allowNull: false,
-      type: DataTypes.STRING,
-      unique: true,
     },
     userId: {
-      allowNull: false,
       type: DataTypes.INTEGER,
+      allowNull: false,
     },
     createdAt: {
       allowNull: false,
@@ -34,5 +33,5 @@ module.exports = {
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('Subject'),
+  down: queryInterface => queryInterface.dropTable('Subjects'),
 };
