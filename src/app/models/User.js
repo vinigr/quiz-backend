@@ -3,13 +3,13 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING(60),
     email: DataTypes.STRING(80),
     password: DataTypes.STRING(80),
-    isActive: DataTypes.BOOLEAN,
+    active: DataTypes.BOOLEAN,
     group_user: DataTypes.INTEGER,
   });
 
   User.associate = function (models) {
     User.belongsTo(models.GroupUser, {
-      foreignKey: 'group_user',
+      foreignKey: 'group_users',
       as: 'group',
     });
     User.hasMany(models.Subject, {

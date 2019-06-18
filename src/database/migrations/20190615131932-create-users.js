@@ -22,12 +22,12 @@ module.exports = {
     active: {
       allowNull: false,
       type: DataTypes.BOOLEAN,
-      default: false,
+      defaultValue: false,
     },
     group_user: {
       allowNull: false,
       type: DataTypes.INTEGER,
-      default: 0,
+      defaultValue: 1,
       references: {
         model: 'group_users',
         key: 'id',
