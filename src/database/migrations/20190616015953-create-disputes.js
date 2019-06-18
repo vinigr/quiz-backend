@@ -1,33 +1,41 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('Disputes', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('disputes', {
     id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
-    quizId: {
+    quiz_id: {
       allowNull: false,
       type: DataTypes.INTEGER,
+      references: {
+        model: 'quizzes',
+        key: 'id',
+      },
     },
-    userId: {
+    user_id: {
       allowNull: false,
       type: DataTypes.INTEGER,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
     score: {
       allowNull: false,
       type: DataTypes.INTEGER,
     },
-    createdAt: {
+    created_at: {
       allowNull: false,
       type: DataTypes.DATE,
     },
-    updatedAt: {
+    updated_at: {
       allowNull: false,
       type: DataTypes.DATE,
     },
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('Disputes'),
+  down: queryInterface => queryInterface.dropTable('disputes'),
 };

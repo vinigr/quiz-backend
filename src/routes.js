@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const player = require('./controller/player');
+const player = require('./app/controllers/player');
 
 router
   .post('/player/signup', player.signUp)

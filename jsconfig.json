@@ -4,11 +4,11 @@
       "allowSyntheticDefaultImports": false,
       "baseUrl": "./",
       "paths": {
-        "@app/*": ["src/*"],
+        "@app/*": ["src/*"],        
         "@config/*": ["src/config/*"],
-        "@controller/*": ["src/controller/*"],
+        "@controller/*": ["src/app/controller/*"],
         "@middleware/*": ["src/middleware/*"],
-        "@helper/*": ["src/helper/*"],
+        "@helper/*": ["src/app/helper/*"],
         "@service/*": ["src/service/*"]
       }
 },

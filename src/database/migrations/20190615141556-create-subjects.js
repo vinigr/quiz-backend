@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('Subjects', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('subjects', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -14,24 +14,28 @@ module.exports = {
       type: DataTypes.STRING(100),
       allowNull: false,
     },
-    accessCode: {
+    access_code: {
       type: DataTypes.STRING(30),
       allowNull: false,
     },
-    userId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
-    createdAt: {
+    created_at: {
       allowNull: false,
       type: DataTypes.DATE,
     },
-    updatedAt: {
+    updated_at: {
       allowNull: false,
       type: DataTypes.DATE,
     },
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('Subjects'),
+  down: queryInterface => queryInterface.dropTable('subjects'),
 };
