@@ -1,51 +1,33 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
-    name: {
-      type: DataTypes.STRING(60),
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING(80),
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.STRING(80),
-      allowNull: false,
-    },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      default: true,
-    },
-    groupUser: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      default: 0,
-    },
+    name: DataTypes.STRING(60),
+    email: DataTypes.STRING(80),
+    password: DataTypes.STRING(80),
+    isActive: DataTypes.BOOLEAN,
+    group_user: DataTypes.INTEGER,
   });
 
   User.associate = function (models) {
     User.belongsTo(models.GroupUser, {
-      foreignKey: 'groupUser',
+      foreignKey: 'group_user',
       as: 'group',
     });
     User.hasMany(models.Subject, {
-      foreignKey: 'userId',
+      foreignKey: 'user_id',
       as: 'user',
     });
     User.hasMany(models.Question, {
-      foreignKey: 'userId',
+      foreignKey: 'user_id',
     });
     User.belongsToMany(models.Subject, {
       through: 'UserSubject',
-      as: 'subjectUsers',
-      foreignKey: 'userId',
+      as: 'subject_users',
+      foreignKey: 'user_id',
     });
     User.belongsToMany(models.Quiz, {
       through: 'Dispute',
       as: 'dispute',
-      foreignKey: 'userId',
+      foreignKey: 'user_id',
     });
   };
   return User;

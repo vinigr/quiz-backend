@@ -1,36 +1,24 @@
 module.exports = (sequelize, DataTypes) => {
   const Subject = sequelize.define('Subject', {
-    name: {
-      type: DataTypes.STRING(60),
-      allowNull: false,
-    },
-    topic: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-    },
-    accessCode: {
-      type: DataTypes.STRING(30),
-      allowNull: false,
-    },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    name: DataTypes.STRING(60),
+    topic: DataTypes.STRING(100),
+    accessCode: DataTypes.STRING(30),
+    userId: DataTypes.INTEGER,
   });
 
   Subject.associate = function (models) {
     Subject.belongsTo(models.User, {
-      foreignKey: 'userId',
+      foreignKey: 'user_id',
       as: 'user',
     });
     Subject.hasMany(models.Quiz, {
-      foreignKey: 'subjectId',
+      foreignKey: 'subject_id',
       as: 'subject',
     });
     Subject.belongsToMany(models.User, {
       through: 'UserSubject',
-      as: 'subjectUsers',
-      foreignKey: 'subjectId',
+      as: 'subject_users',
+      foreignKey: 'subject_id',
     });
   };
   return Subject;

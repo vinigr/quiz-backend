@@ -2,19 +2,16 @@ module.exports = (sequelize, DataTypes) => {
   const Dispute = sequelize.define('Dispute', {
     quizId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
-    score: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-    },
+    score: DataTypes.INTEGER,
   });
 
   Dispute.associate = function (models) {
     Dispute.belongsTo(models.Quiz, {
-      foreignKey: 'quizId',
+      foreignKey: 'quiz_id',
       as: 'quiz',
     });
     Dispute.belongsTo(models.User, {
-      foreignKey: 'userId',
+      foreignKey: 'user_id',
       as: 'user',
     });
   };

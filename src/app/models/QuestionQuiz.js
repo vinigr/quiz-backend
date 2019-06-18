@@ -1,16 +1,16 @@
 module.exports = (sequelize, DataTypes) => {
   const QuestionQuiz = sequelize.define('QuestionQuiz', {
-    quizId: DataTypes.INTEGER,
-    questionId: DataTypes.INTEGER,
+    quiz_id: DataTypes.INTEGER,
+    question_id: DataTypes.INTEGER,
   });
 
   QuestionQuiz.associate = function (models) {
     QuestionQuiz.belongsTo(models.Quiz, {
-      foreignKey: 'quizId',
+      foreignKey: 'quiz_id',
       as: 'quiz',
     });
     QuestionQuiz.belongsTo(models.Question, {
-      foreignKey: 'questionId',
+      foreignKey: 'question_id',
       as: 'question',
     });
   };
