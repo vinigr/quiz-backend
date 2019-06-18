@@ -6,23 +6,17 @@ module.exports = {
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
-    name: {
-      type: DataTypes.STRING(60),
-      allowNull: false,
-    },
-    email: {
-      type: DataTypes.STRING(80),
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.STRING(80),
-      allowNull: false,
-    },
     active: {
       allowNull: false,
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+    },
+    local_auth: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'local_auths',
+        key: 'id',
+      },
     },
     group_user: {
       allowNull: false,
