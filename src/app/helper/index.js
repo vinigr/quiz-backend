@@ -39,6 +39,13 @@ const Helper = {
     process.env.SECRET, { expiresIn: '7d' });
     return token;
   },
+
+  accessCodeGererate() {
+    const math = Math.random().toString(36).substring(2, 6);
+    const code = (math + math).toUpperCase();
+    console.log(code);
+    return code;
+  },
 };
 
 module.exports = Helper;
