@@ -58,15 +58,15 @@ const signUp = async (req, res) => {
 const SignIn = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ where: { email } });
+  const userLocal = await LocalAuth.findOne({ where: { email } });
 
-  if (!user) {
+  if (!userLocal) {
     return res
       .status(404)
       .send({ message: 'Usuário não encontrado.' });
   }
 
-  const compareSenha = Helper.comparePassword(user.password, password);
+  const compareSenha = Helper.comparePassword(userLocal.password, password);
 
   if (!compareSenha) {
     return res
@@ -74,7 +74,10 @@ const SignIn = async (req, res) => {
       .send({ message: 'Credenciais inválidas.' });
   }
 
-  user.password = undefined;
+  userLocal.password = undefined;
+
+  const user = await User.findOne({ where: { local_auth: userLocal.id } });
+  // console.log(user);
 
   const token = Helper.generateToken(user.id);
   return res.status(201).send({ token });

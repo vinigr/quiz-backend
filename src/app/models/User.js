@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'l_auth',
     });
     User.belongsTo(models.GroupUser, {
-      foreignKey: 'group_users',
+      foreignKey: 'group_user',
       as: 'group',
     });
     User.hasMany(models.Subject, {
