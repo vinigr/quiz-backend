@@ -19,6 +19,12 @@ module.exports = {
       type: DataTypes.STRING(80),
       allowNull: false,
     },
+    reset_password_token: {
+      type: DataTypes.STRING(60),
+    },
+    reset_password_expires: {
+      type: DataTypes.DATE,
+    },
     created_at: {
       allowNull: false,
       type: DataTypes.DATE,
@@ -30,5 +36,5 @@ module.exports = {
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('local_auth'),
+  down: queryInterface => queryInterface.dropTable('local_auths'),
 };
