@@ -17,6 +17,7 @@ module.exports = {
     access_code: {
       type: DataTypes.STRING(30),
       allowNull: false,
+      unique: true,
     },
     user_id: {
       type: DataTypes.INTEGER,

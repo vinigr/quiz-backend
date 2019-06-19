@@ -9,7 +9,6 @@ router
   .put('/player/forgotPassword', player.forgotPassword)
   .get('/resetPassword/:token', player.resetPassword)
   .put('/player/updatePassword', player.updatePassword)
-  .get('/subject', [verifyHelper.verifyToken, verifyHelper.isAdmin], subject.teste);
-
+  .post('/subject/create', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.create);
 
 module.exports = router;
