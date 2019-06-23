@@ -27,6 +27,10 @@ const signUp = async (req, res) => {
   const hashPassword = Helper.hashPassword(password);
 
   try {
+    const userExists = await LocalAuth.findOne({ where: { email } });
+
+    if (userExists) return res.status(400).send({ message: 'User with that EMAIL already exist' });
+
     const userLocal = await LocalAuth.create({
       name,
       email,
@@ -40,23 +44,48 @@ const signUp = async (req, res) => {
     });
 
     const token = Helper.generateToken(user.id);
+    const confirmCode = Helper.generateConfirmationToken(user.id);
 
     transport.sendMail({
       from: 'Eu mesmo <vinyirun4@hotmail.com>',
       to: `${userLocal.name} <${userLocal.email}>`,
       subject: `Bem vindo ${userLocal.name}`,
-      html: '<h1>Funcionou!</h1>',
+      text:
+      'You are receiving this because you (or someone else) have requested the create a account in we application.\n\n'
+      + 'Please click on the following link, or paste this into your browser to complete the process within two days of receiving it:\n\n'
+      + `http://localhost:3000/confirmation/${confirmCode}\n\n`
+      + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
     });
 
     return res.status(201).send({ token });
   } catch (error) {
-    if (error.routine === '_bt_check_unique') {
-      return res.status(400).send({ message: 'User with that EMAIL already exist' });
-    }
     return res.status(400).send(error);
   }
 };
 
+const confirmAccount = async (req, res) => {
+  const { token } = req.params;
+
+  const userConfirm = Helper.verifyConfirmation(token);
+
+  if (!userConfirm) return res.status(400).send({ message: 'Invalid confirmation code' });
+
+  try {
+    const user = await User.findByPk(userConfirm);
+
+    if (!user) return res.status(403).send({ message: 'User not found' });
+
+    if (user.active === true) return res.status(400).send({ message: 'Account has already been confirmed previously' });
+
+    await user.update({
+      active: true,
+    });
+
+    return res.status(201).json({ message: 'user' });
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+};
 
 const signIn = async (req, res) => {
   const { email, password } = req.body;
@@ -170,6 +199,7 @@ const updatePassword = async (req, res) => {
 
 module.exports = {
   signUp,
+  confirmAccount,
   signIn,
   forgotPassword,
   resetPassword,

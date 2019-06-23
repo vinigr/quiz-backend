@@ -4,11 +4,12 @@ const player = require('./app/controllers/player');
 const subject = require('./app/controllers/subject');
 
 router
-  .post('/player/signup', player.signUp)
-  .post('/player/signin', player.signIn)
-  .put('/player/forgotPassword', player.forgotPassword)
+  .post('/signup', player.signUp)
+  .get('/confirmation/:token', player.confirmAccount)
+  .post('/signin', player.signIn)
+  .put('/forgotPassword', player.forgotPassword)
   .get('/resetPassword/:token', player.resetPassword)
-  .put('/player/updatePassword', player.updatePassword)
+  .put('/updatePassword', player.updatePassword)
   .post('/subject/create', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.create);
 
 module.exports = router;

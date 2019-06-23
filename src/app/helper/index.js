@@ -40,10 +40,29 @@ const Helper = {
     return token;
   },
 
+  generateConfirmationToken(id) {
+    const token = jwt.sign({
+      userId: id,
+    },
+    process.env.COD_CONFIRM, { expiresIn: '2d' });
+    return token;
+  },
+
+  verifyConfirmation(token) {
+    let user;
+    jwt.verify(token, process.env.COD_CONFIRM, (err, decoded) => {
+      if (err) {
+        user = undefined;
+        return user;
+      }
+      user = decoded.userId;
+    });
+    return user;
+  },
+
   accessCodeGererate() {
     const math = Math.random().toString(36).substring(2, 6);
     const code = (math + math).toUpperCase();
-    console.log(code);
     return code;
   },
 };
