@@ -1,7 +1,7 @@
 // require('dotenv').config();
 require('module-alias/register');
 
-const app = require('./app');
+const server = require('./app');
 
 const port = process.env.PORT || 3333;
 
@@ -9,7 +9,7 @@ const { sequelize } = require('./app/models');
 
 const boot = () => {
   console.clear();
-  app.listen(port, () => {
+  server.listen(port, () => {
     console.log(`Rodando na porta http://localhost:${port}`);
   });
 };
