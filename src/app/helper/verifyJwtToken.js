@@ -24,6 +24,26 @@ const verifyHelper = {
     });
   },
 
+  verifyTokenMobile(req, res) {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(403).send({
+        auth: false, message: 'No token provided.',
+      });
+    }
+
+    jwt.verify(token, process.env.SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(500).send({
+          auth: false,
+          message: `Fail to Authentication. Error -> ${err}`,
+        });
+      }
+      req.userId = decoded.userId;
+      return res.status(200).send({ auth: true });
+    });
+  },
+
   async isTeacher(req, res, next) {
     try {
       const user = await User.findOne({
