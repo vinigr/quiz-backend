@@ -6,10 +6,6 @@ module.exports = {
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
-    name: {
-      type: DataTypes.STRING(60),
-      allowNull: false,
-    },
     email: {
       type: DataTypes.STRING(80),
       allowNull: false,

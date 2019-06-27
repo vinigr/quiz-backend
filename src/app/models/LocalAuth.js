@@ -1,6 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
   const LocalAuth = sequelize.define('LocalAuth', {
-    name: DataTypes.STRING(60),
     email: DataTypes.STRING(80),
     password: DataTypes.STRING(80),
     reset_passwordToken: DataTypes.STRING(60),

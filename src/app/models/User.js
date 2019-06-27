@@ -1,5 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
+    name: DataTypes.STRING(60),
     active: DataTypes.BOOLEAN,
     local_auth: DataTypes.INTEGER,
     group_user: DataTypes.INTEGER,
@@ -15,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'group',
     });
     User.hasMany(models.Subject, {
-      foreignKey: 'user_id',
+      foreignKey: 'userId',
       as: 'user',
     });
     User.hasMany(models.Question, {

@@ -6,6 +6,10 @@ module.exports = {
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
+    name: {
+      type: DataTypes.STRING(60),
+      allowNull: false,
+    },
     active: {
       allowNull: false,
       type: DataTypes.BOOLEAN,
