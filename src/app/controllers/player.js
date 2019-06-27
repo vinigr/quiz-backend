@@ -32,12 +32,12 @@ const signUp = async (req, res) => {
     if (userExists) return res.status(400).send({ message: 'User with that EMAIL already exist' });
 
     const userLocal = await LocalAuth.create({
-      name,
       email,
       password: hashPassword,
     });
 
     const user = await User.create({
+      name,
       active: false,
       local_auth: userLocal.id,
       group_user,
@@ -48,8 +48,8 @@ const signUp = async (req, res) => {
 
     transport.sendMail({
       from: 'Eu mesmo <vinyirun4@hotmail.com>',
-      to: `${userLocal.name} <${userLocal.email}>`,
-      subject: `Bem vindo ${userLocal.name}`,
+      to: `${user.name} <${userLocal.email}>`,
+      subject: `Bem vindo ${user.name}`,
       text:
       'You are receiving this because you (or someone else) have requested the create a account in we application.\n\n'
       + 'Please click on the following link, or paste this into your browser to complete the process within two days of receiving it:\n\n'
@@ -139,7 +139,7 @@ const forgotPassword = async (req, res) => {
 
     transport.sendMail({
       from: 'Eu mesmo <vinyirun4@hotmail.com>',
-      to: `${userLocal.name} <${userLocal.email}>`,
+      to: `<${userLocal.email}>`,
       subject: 'Link to reset password',
       text:
         'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n'
