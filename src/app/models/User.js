@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     User.belongsToMany(models.Subject, {
       through: 'UserSubject',
-      as: 'subject_users',
+      as: 'user_subject',
       foreignKey: 'user_id',
     });
     User.belongsToMany(models.Quiz, {
