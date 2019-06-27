@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Subject.associate = function (models) {
     Subject.belongsTo(models.User, {
-      foreignKey: 'user_id',
+      foreignKey: 'userId',
       as: 'user',
     });
     Subject.hasMany(models.Quiz, {
