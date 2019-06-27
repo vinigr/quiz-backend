@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('users_subjects', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('user_subjects', {
     id: {
       allowNull: false,
       autoIncrement: true,
