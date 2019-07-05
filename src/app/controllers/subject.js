@@ -92,9 +92,25 @@ const findUsersInSubject = async (req, res) => {
   }
 };
 
+const subjectsTeacher = async (req, res) => {
+  try {
+    const subjects = await Subject.findAll({
+      where: {
+        user_id: req.userId,
+      },
+    });
+
+
+    return res.status(201).send({ subjects });
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+};
+
 module.exports = {
   create,
   find,
   registrationInSubject,
   findUsersInSubject,
+  subjectsTeacher,
 };
