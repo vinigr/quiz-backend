@@ -43,7 +43,7 @@ const signUp = async (req, res) => {
       group_user,
     });
 
-    const token = Helper.generateToken(user.id);
+    const token = Helper.generateToken(user.id, user.group_user);
     const confirmCode = Helper.generateConfirmationToken(user.id);
 
     transport.sendMail({
@@ -110,7 +110,7 @@ const signIn = async (req, res) => {
 
   const user = await User.findOne({ where: { local_auth: userLocal.id } });
 
-  const token = Helper.generateToken(user.id);
+  const token = Helper.generateToken(user.id, user.group_user);
   return res.status(201).send({ token });
 };
 

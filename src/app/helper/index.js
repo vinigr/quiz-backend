@@ -32,9 +32,10 @@ const Helper = {
    * @param {string} id
    * @returns {string} token
    */
-  generateToken(id) {
+  generateToken(id, userGroup) {
     const token = jwt.sign({
       userId: id,
+      role: userGroup,
     },
     process.env.SECRET, { expiresIn: '7d' });
     return token;
