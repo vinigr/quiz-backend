@@ -17,7 +17,7 @@ router
   .post('/subject/create', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.create)
   .get('/subject/:code', subject.find)
   .post('/subject/registrationUser', [verifyHelper.verifyToken], subject.registrationInSubject)
-  .get('/subject/:id/users/', subject.findUsersInSubject);
+  .get('/subject/:id/users', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.findUsersInSubject);
 
 router
   .get('/user/subjects', [verifyHelper.verifyToken], userSubject.userSubjects);
