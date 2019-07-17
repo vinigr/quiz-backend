@@ -131,6 +131,9 @@ const forgotPassword = async (req, res) => {
 
   try {
     const userLocal = await LocalAuth.findOne({ where: { email } });
+
+    if (!userLocal) return res.status(403).send({ message: 'E-mail não está associado a uma conta!' });
+
     const token = crypto.randomBytes(20).toString('hex');
     await userLocal.update({
       reset_passwordToken: token,
@@ -144,11 +147,11 @@ const forgotPassword = async (req, res) => {
       text:
         'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n'
         + 'Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n'
-        + `http://localhost:3000/resetPassword/${token}\n\n`
+        + `http://localhost:3000/reset-password/${token}\n\n`
         + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
     });
 
-    return res.status(201).json(userLocal);
+    return res.status(201).json({ message: 'Aguarde...\n O E-mail de recuperação será enviado em instantes e é válido por 10 minutos.' });
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -167,7 +170,7 @@ const resetPassword = async (req, res) => {
       },
     });
 
-    if (!userLocal) return res.status(403).send({ message: 'Password reset link is invalid or has expired' });
+    if (!userLocal) return res.status(403).send({ message: 'O link de redefinição de senha é inválido ou expirou!' });
 
     return res.status(201).json({ id: userLocal.id });
   } catch (error) {
