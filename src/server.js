@@ -3,7 +3,9 @@ require('module-alias/register');
 
 const server = require('./app');
 
-const port = process.env.PORT || 3333;
+const config = require('./config');
+
+const { port } = config.app;
 
 const { sequelize } = require('./app/models');
 
