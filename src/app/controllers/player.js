@@ -194,9 +194,9 @@ const updatePassword = async (req, res) => {
       password: hashPassword,
     });
 
-    return res.status(200).send(userLocal);
+    return res.status(200).send({ message: 'Senha alterada com sucesso!' });
   } catch (error) {
-    return res.status(400).send(error);
+    return res.status(400).send({ message: error });
   }
 };
 
