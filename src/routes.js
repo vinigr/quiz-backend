@@ -20,7 +20,8 @@ router
   .get('/subject/:id/users', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.findUsersInSubject);
 
 router
-  .get('/user/subjects', [verifyHelper.verifyToken], userSubject.userSubjects);
+  .get('/user/subjects', [verifyHelper.verifyToken], userSubject.userSubjects)
+  .delete('/subject/subscribe', [verifyHelper.verifyToken], userSubject.unsubscribe);
 
 router
   .get('/teacher/subjects', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.subjectsTeacher);
