@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
   const Question = sequelize.define('Question', {
     question: DataTypes.STRING,
-    options: DataTypes.ARRAY(DataTypes.STRING(500)),
+    options: DataTypes.ARRAY(DataTypes.TEXT(500)),
     answer: DataTypes.STRING,
     user_id: DataTypes.INTEGER,
   });

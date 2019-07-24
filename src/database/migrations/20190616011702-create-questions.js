@@ -12,7 +12,7 @@ module.exports = {
     },
     options: {
       allowNull: false,
-      type: DataTypes.ARRAY(DataTypes.STRING(500)),
+      type: DataTypes.ARRAY(DataTypes.TEXT(500)),
     },
     answer: {
       allowNull: false,
