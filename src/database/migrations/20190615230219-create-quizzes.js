@@ -18,6 +18,15 @@ module.exports = {
         key: 'id',
       },
     },
+    blocked: {
+      allowNull: false,
+      defaultValue: false,
+      type: DataTypes.BOOLEAN,
+    },
+    released_at: {
+      allowNull: false,
+      type: DataTypes.DATE,
+    },
     created_at: {
       allowNull: false,
       type: DataTypes.DATE,
