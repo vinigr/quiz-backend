@@ -18,14 +18,6 @@ module.exports = {
       allowNull: false,
       type: DataTypes.STRING,
     },
-    subject_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'subjects',
-        key: 'id',
-      },
-    },
     user_id: {
       allowNull: false,
       type: DataTypes.INTEGER,
