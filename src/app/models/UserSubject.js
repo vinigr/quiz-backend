@@ -2,6 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const UserSubject = sequelize.define('UserSubject', {
     user_id: DataTypes.INTEGER,
     subject_id: DataTypes.INTEGER,
+    active: DataTypes.BOOLEAN,
   });
 
   UserSubject.associate = function (models) {

@@ -22,6 +22,11 @@ module.exports = {
         key: 'id',
       },
     },
+    active: {
+      allowNull: false,
+      defaultValue: true,
+      type: DataTypes.BOOLEAN,
+    },
     created_at: {
       allowNull: false,
       type: DataTypes.DATE,
