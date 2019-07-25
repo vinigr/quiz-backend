@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     topic: DataTypes.STRING(100),
     accessCode: DataTypes.STRING(30),
     userId: DataTypes.INTEGER,
+    active: DataTypes.BOOLEAN,
   });
 
   Subject.associate = function (models) {

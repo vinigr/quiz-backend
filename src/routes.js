@@ -17,7 +17,8 @@ router
   .post('/subject/create', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.create)
   .get('/subject/:code', subject.find)
   .post('/subject/registrationUser', [verifyHelper.verifyToken], subject.registrationInSubject)
-  .get('/subject/:id/users', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.findUsersInSubject);
+  .get('/subject/:id/users', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.findUsersInSubject)
+  .delete('/subject/:id', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.disableSubjects);
 
 router
   .get('/user/subjects', [verifyHelper.verifyToken], userSubject.userSubjects)

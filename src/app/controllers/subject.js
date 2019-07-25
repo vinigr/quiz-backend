@@ -12,6 +12,7 @@ const create = async (req, res) => {
       topic,
       accessCode,
       userId: req.userId,
+      active: true,
     });
 
     return res.status(201).send({ subject });
@@ -97,13 +98,37 @@ const subjectsTeacher = async (req, res) => {
     const subjects = await Subject.findAll({
       where: {
         user_id: req.userId,
+        active: true,
       },
     });
 
-
     return res.status(201).send({ subjects });
   } catch (error) {
-    return res.status(400).send(error);
+    return res.status(400).send({ message: error });
+  }
+};
+
+const disableSubjects = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const subject = await Subject.findOne({
+      where: {
+        id,
+        user_id: req.userId,
+        active: true,
+      },
+    });
+
+    if (!subject) return res.status(403).send({ message: 'Disciplina não encontrada!' });
+
+    subject.update({
+      active: false,
+    });
+
+    return res.status(201).send({ id: subject.id });
+  } catch (error) {
+    return res.status(400).send({ message: error });
   }
 };
 
@@ -113,4 +138,5 @@ module.exports = {
   registrationInSubject,
   findUsersInSubject,
   subjectsTeacher,
+  disableSubjects,
 };
