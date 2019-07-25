@@ -13,7 +13,7 @@ const signUp = async (req, res) => {
   });
 
   const {
-    name, email, password, group_user = 1,
+    name, email, password, groupUser = 1,
   } = req.body;
 
   if (!name || !email || !password) {
@@ -22,6 +22,12 @@ const signUp = async (req, res) => {
 
   if (!Helper.isValidEmail(email)) {
     return res.status(400).send({ message: 'Please enter a valid email address' });
+  }
+
+  const groupNum = parseFloat(groupUser);
+
+  if ((groupNum !== 1) && (groupNum !== 2)) {
+    return res.status(400).send({ message: 'Grupo de usuário não reconhecido!' });
   }
 
   const hashPassword = Helper.hashPassword(password);
@@ -40,7 +46,7 @@ const signUp = async (req, res) => {
       name,
       active: false,
       local_auth: userLocal.id,
-      group_user,
+      group_user: groupUser,
     });
 
     const token = Helper.generateToken(user.id, user.group_user);
