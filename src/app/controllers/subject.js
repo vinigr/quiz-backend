@@ -61,6 +61,7 @@ const registrationInSubject = async (req, res) => {
     const userSubject = await UserSubject.create({
       user_id: userId,
       subject_id: subjectId,
+      active: true,
     });
 
     return res.status(201).send({ userSubject });
@@ -84,7 +85,6 @@ const findUsersInSubject = async (req, res) => {
         model: User, as: 'user',
       }],
     });
-
 
     return res.status(201).send({ usersSubject });
   } catch (error) {
