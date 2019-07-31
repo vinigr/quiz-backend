@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('questions_TF', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('tf_questions', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -29,5 +29,5 @@ module.exports = {
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('questions_true_false'),
+  down: queryInterface => queryInterface.dropTable('tf_questions'),
 };

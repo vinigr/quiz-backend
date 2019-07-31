@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const QuestionME = sequelize.define('QuestionME', {
+  const MeQuestion = sequelize.define('MeQuestion', {
     question: DataTypes.STRING,
     pathImage: DataTypes.STRING,
     option1: DataTypes.STRING(500),
@@ -7,21 +7,21 @@ module.exports = (sequelize, DataTypes) => {
     option3: DataTypes.STRING(500),
     option4: DataTypes.STRING(500),
     option5: DataTypes.STRING(500),
-    answer: DataTypes.STRING,
+    answer: DataTypes.INTEGER,
     user_id: DataTypes.INTEGER,
   });
 
-  QuestionME.associate = function (models) {
-    QuestionME.belongsTo(models.User, {
+  MeQuestion.associate = function (models) {
+    MeQuestion.belongsTo(models.User, {
       foreignKey: 'user_id',
       as: 'user',
     });
-    QuestionME.belongsToMany(models.Quiz, {
+    MeQuestion.belongsToMany(models.Quiz, {
       through: 'QuestionQuiz',
       as: 'dispute',
       foreignKey: 'question_id',
     });
   };
 
-  return QuestionME;
+  return MeQuestion;
 };

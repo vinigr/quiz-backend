@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'quiz_id',
       as: 'quiz',
     });
-    QuestionQuiz.belongsTo(models.QuestionME, {
+    QuestionQuiz.belongsTo(models.MeQuestion, {
       foreignKey: 'question_id',
       as: 'question',
     });

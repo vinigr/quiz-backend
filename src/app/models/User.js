@@ -19,10 +19,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'user',
     });
-    User.hasMany(models.QuestionME, {
+    User.hasMany(models.MeQuestion, {
       foreignKey: 'user_id',
     });
-    User.hasMany(models.QuestionTF, {
+    User.hasMany(models.TfQuestion, {
       foreignKey: 'user_id',
     });
     User.belongsToMany(models.Subject, {
