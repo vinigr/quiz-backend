@@ -1,8 +1,12 @@
 const router = require('express').Router();
+const multer = require('multer');
+const multerConfig = require('./config/multer');
+
 const verifyHelper = require('./app/helper/verifyJwtToken');
 const player = require('./app/controllers/player');
 const subject = require('./app/controllers/subject');
 const userSubject = require('./app/controllers/userSubject');
+const question = require('./app/controllers/question');
 
 router
   .post('/signup', player.signUp)
@@ -26,5 +30,8 @@ router
 
 router
   .get('/teacher/subjects', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.subjectsTeacher);
+
+router
+  .post('/questionME', [verifyHelper.verifyToken, verifyHelper.isTeacher], multer(multerConfig).single('image'), question.createQuestionME);
 
 module.exports = router;
