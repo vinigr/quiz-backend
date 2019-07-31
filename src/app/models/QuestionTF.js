@@ -1,22 +1,22 @@
 module.exports = (sequelize, DataTypes) => {
-  const Question = sequelize.define('Question', {
+  const QuestionTF = sequelize.define('QuestionTF', {
     question: DataTypes.STRING,
-    options: DataTypes.ARRAY(DataTypes.TEXT(500)),
-    answer: DataTypes.STRING,
+    pathImage: DataTypes.STRING,
+    answer: DataTypes.BOOLEAN,
     user_id: DataTypes.INTEGER,
   });
 
-  Question.associate = function (models) {
-    Question.belongsTo(models.User, {
+  QuestionTF.associate = function (models) {
+    QuestionTF.belongsTo(models.User, {
       foreignKey: 'user_id',
       as: 'user',
     });
-    Question.belongsToMany(models.Quiz, {
+    QuestionTF.belongsToMany(models.Quiz, {
       through: 'QuestionQuiz',
       as: 'dispute',
       foreignKey: 'question_id',
     });
   };
 
-  return Question;
+  return QuestionTF;
 };

@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('questions', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('questions_ME', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -10,9 +10,29 @@ module.exports = {
       allowNull: false,
       type: DataTypes.STRING,
     },
-    options: {
+    pathImage: {
+      allowNull: true,
+      type: DataTypes.STRING,
+    },
+    option1: {
       allowNull: false,
-      type: DataTypes.ARRAY(DataTypes.TEXT(500)),
+      type: DataTypes.STRING(500),
+    },
+    option2: {
+      allowNull: false,
+      type: DataTypes.STRING(500),
+    },
+    option3: {
+      allowNull: true,
+      type: DataTypes.STRING(500),
+    },
+    option4: {
+      allowNull: true,
+      type: DataTypes.STRING(500),
+    },
+    option5: {
+      allowNull: true,
+      type: DataTypes.STRING(500),
     },
     answer: {
       allowNull: false,
