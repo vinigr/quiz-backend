@@ -32,6 +32,6 @@ router
   .get('/teacher/subjects', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.subjectsTeacher);
 
 router
-  .post('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], multer(multerConfig).single('image'), question.createQuestionME);
-
+  .post('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], multer(multerConfig).single('image'), question.createQuestionME)
+  .get('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsMe);
 module.exports = router;

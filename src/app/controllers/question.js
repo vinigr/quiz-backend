@@ -39,7 +39,21 @@ const createQuestionME = async (req, res) => {
   }
 };
 
+const questionsMe = async (req, res) => {
+  try {
+    const questions = await MeQuestion.findAll({
+      where: {
+        user_id: req.userId,
+      },
+    });
+
+    return res.status(201).send(questions);
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
 
 module.exports = {
   createQuestionME,
+  questionsMe,
 };
