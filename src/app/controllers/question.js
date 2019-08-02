@@ -1,4 +1,4 @@
-const { MeQuestion } = require('../models');
+const { MeQuestion, TfQuestion } = require('../models');
 
 const createQuestionME = async (req, res) => {
   const { file = null } = req;
@@ -53,7 +53,68 @@ const questionsMe = async (req, res) => {
   }
 };
 
+const createQuestionTF = async (req, res) => {
+  const { file = null } = req;
+
+  const { question, answer } = req.body;
+
+  if (!question || !answer) {
+    return res.status(400).send({ message: 'Questão incompleta!' });
+  }
+
+  try {
+    const questionResp = await TfQuestion.create({
+      question,
+      pathImage: file && file.path,
+      answer,
+      user_id: req.userId,
+    });
+
+    return res.status(201).send({ question: questionResp });
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
+const questionsTf = async (req, res) => {
+  try {
+    const questions = await TfQuestion.findAll({
+      where: {
+        user_id: req.userId,
+      },
+    });
+
+
+    return res.status(201).send(questions);
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
+const questionsAll = async (req, res) => {
+  try {
+    const questionsTf = await TfQuestion.findAll({
+      where: {
+        user_id: req.userId,
+      },
+    });
+
+    const questionsMe = await MeQuestion.findAll({
+      where: {
+        user_id: req.userId,
+      },
+    });
+
+    return res.status(201).send({ questionsTf, questionsMe });
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
 module.exports = {
   createQuestionME,
   questionsMe,
+  createQuestionTF,
+  questionsTf,
+  questionsAll,
 };

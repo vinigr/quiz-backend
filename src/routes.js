@@ -33,5 +33,8 @@ router
 
 router
   .post('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], multer(multerConfig).single('image'), question.createQuestionME)
-  .get('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsMe);
+  .get('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsMe)
+  .post('/questionTf', [verifyHelper.verifyToken, verifyHelper.isTeacher], multer(multerConfig).single('image'), question.createQuestionTF)
+  .get('/questionTf', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsTf)
+  .get('/questionsAll', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsAll);
 module.exports = router;
