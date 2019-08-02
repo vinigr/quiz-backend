@@ -10,13 +10,21 @@ module.exports = {
       allowNull: false,
       type: DataTypes.STRING,
     },
-    pathImage: {
+    path_image: {
       allowNull: true,
       type: DataTypes.STRING,
     },
     answer: {
       allowNull: false,
       type: DataTypes.BOOLEAN,
+    },
+    user_id: {
+      allowNull: false,
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
     created_at: {
       allowNull: false,
