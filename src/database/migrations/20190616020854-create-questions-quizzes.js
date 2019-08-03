@@ -14,11 +14,19 @@ module.exports = {
         key: 'id',
       },
     },
-    question_id: {
-      allowNull: false,
+    me_question_id: {
+      allowNull: true,
       type: DataTypes.INTEGER,
       references: {
         model: 'me_questions',
+        key: 'id',
+      },
+    },
+    tf_question_id: {
+      allowNull: true,
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'tf_questions',
         key: 'id',
       },
     },

@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     TfQuestion.belongsToMany(models.Quiz, {
       through: 'QuestionQuiz',
       as: 'dispute',
-      foreignKey: 'question_id',
+      foreignKey: 'tfQuestionId',
     });
   };
 
