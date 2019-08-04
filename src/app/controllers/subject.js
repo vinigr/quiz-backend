@@ -44,28 +44,36 @@ const find = async (req, res) => {
 };
 
 const registrationInSubject = async (req, res) => {
-  const { subjectId } = req.body;
+  const { accessCode } = req.body;
   const { userId } = req;
 
-  if (!subjectId || !userId) return res.status(400).send({ message: 'Some values are missing' });
+  if (!accessCode || accessCode === '' || !userId) return res.status(400).send({ message: 'Some values are missing' });
 
   try {
-    const existsUserSubject = await UserSubject.findOne({
+    const subject = await Subject.findOne({
       where: {
-        user_id: userId,
-        subject_id: subjectId,
+        accessCode,
       },
     });
 
-    if (existsUserSubject) res.status(400).send({ message: 'Already registered' });
+    if (!subject) return res.status(400).send({ message: 'Código inválido' });
 
-    const userSubject = await UserSubject.create({
+    const existsUserSubject = await UserSubject.findOne({
+      where: {
+        user_id: userId,
+        subject_id: subject.id,
+      },
+    });
+
+    if (existsUserSubject) res.status(400).send({ message: 'Já registrado!' });
+
+    await UserSubject.create({
       user_id: userId,
-      subject_id: subjectId,
+      subject_id: subject.id,
       active: true,
     });
 
-    return res.status(201).send({ userSubject });
+    return res.status(201).send({ subject });
   } catch (error) {
     return res.status(400).send(error);
   }
