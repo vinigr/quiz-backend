@@ -54,6 +54,9 @@ const registrationInSubject = async (req, res) => {
       where: {
         accessCode,
       },
+      include: [{
+        model: User, as: 'user',
+      }],
     });
 
     if (!subject) return res.status(400).send({ message: 'Código inválido' });
@@ -65,7 +68,7 @@ const registrationInSubject = async (req, res) => {
       },
     });
 
-    if (existsUserSubject) res.status(400).send({ message: 'Já registrado!' });
+    if (existsUserSubject) return res.status(400).send({ message: 'Já registrado!' });
 
     await UserSubject.create({
       user_id: userId,
