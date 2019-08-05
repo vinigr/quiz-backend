@@ -63,27 +63,9 @@ const Helper = {
 
   accessCodeGererate() {
     const math = Math.random().toString(36).substring(2, 6);
-    const code = (math + math).toUpperCase();
+    const math2 = Math.random().toString(36).substring(2, 6);
+    const code = (math + math2).toUpperCase();
     return code;
-  },
-
-  verifyTokenMobile(token) {
-    if (!token) {
-      return res.status(403).send({
-        auth: false, message: 'No token provided.',
-      });
-    }
-
-    jwt.verify(token, process.env.SECRET, (err, decoded) => {
-      if (err) {
-        return res.status(500).send({
-          auth: false,
-          message: `Fail to Authentication. Error -> ${err}`,
-        });
-      }
-      req.userId = decoded.userId;
-      next();
-    });
   },
 };
 
