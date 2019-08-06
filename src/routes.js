@@ -22,6 +22,7 @@ router
   .get('/subject/:code', subject.find)
   .post('/subject/registrationUser', [verifyHelper.verifyToken], subject.registrationInSubject)
   .get('/subject/:id/users', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.findUsersInSubject)
+  .get('/subject/users/:id', [verifyHelper.verifyToken], subject.usersInSubject)
   .delete('/subject/:id', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.disableSubjects);
 
 router

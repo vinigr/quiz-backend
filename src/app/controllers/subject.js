@@ -104,6 +104,37 @@ const findUsersInSubject = async (req, res) => {
   }
 };
 
+const usersInSubject = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) return res.status(400).send({ message: 'Some values are missing' });
+
+  try {
+    const subject = await Subject.findOne({
+      where: {
+        id,
+      },
+      include: [{
+        model: User, as: 'user', attributes: ['name'],
+      }],
+      attributes: [],
+    });
+
+    const usersSubject = await UserSubject.findAll({
+      where: {
+        subject_id: id,
+      },
+      include: [{
+        model: User, as: 'user',
+      }],
+    });
+
+    return res.status(201).send({ subject, usersSubject });
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+};
+
 const subjectsTeacher = async (req, res) => {
   try {
     const subjects = await Subject.findAll({
@@ -148,6 +179,7 @@ module.exports = {
   find,
   registrationInSubject,
   findUsersInSubject,
+  usersInSubject,
   subjectsTeacher,
   disableSubjects,
 };
