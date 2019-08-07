@@ -18,6 +18,9 @@ router
   .put('/updatePassword', player.updatePassword);
 
 router
+  .get('/user', [verifyHelper.verifyToken], player.getUser);
+
+router
   .post('/subject/create', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.create)
   .get('/subject/:code', subject.find)
   .post('/subject/registrationUser', [verifyHelper.verifyToken], subject.registrationInSubject)

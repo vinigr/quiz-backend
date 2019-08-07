@@ -206,6 +206,22 @@ const updatePassword = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  const { userId } = req;
+
+  try {
+    const user = await User.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) return res.status(403).send({ message: 'User not found' });
+
+    return res.status(200).send(user);
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
 module.exports = {
   signUp,
   confirmAccount,
@@ -213,4 +229,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   updatePassword,
+  getUser,
 };
