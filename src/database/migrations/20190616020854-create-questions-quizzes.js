@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, DataTypes) => queryInterface.createTable('questions_quizzes', {
+  up: (queryInterface, DataTypes) => queryInterface.createTable('question_quizzes', {
     id: {
       allowNull: false,
       autoIncrement: true,
