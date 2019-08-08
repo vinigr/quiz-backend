@@ -7,6 +7,7 @@ const player = require('./app/controllers/player');
 const subject = require('./app/controllers/subject');
 const userSubject = require('./app/controllers/userSubject');
 const question = require('./app/controllers/question');
+const quiz = require('./app/controllers/quiz');
 
 router
   .post('/signup', player.signUp)
@@ -41,4 +42,9 @@ router
   .post('/questionTf', [verifyHelper.verifyToken, verifyHelper.isTeacher], multer(multerConfig).single('image'), question.createQuestionTF)
   .get('/questionTf', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsTf)
   .get('/questionsAll', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsAll);
+
+router
+  .post('/createQuiz', [verifyHelper.verifyToken, verifyHelper.isTeacher], quiz.createQuiz)
+  .get('/subjectQuizList/:id', [verifyHelper.verifyToken, verifyHelper.isTeacher], quiz.subjectsQuizList);
+
 module.exports = router;
