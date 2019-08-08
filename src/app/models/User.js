@@ -35,6 +35,9 @@ module.exports = (sequelize, DataTypes) => {
       as: 'dispute',
       foreignKey: 'user_id',
     });
+    User.hasMany(models.UserQuestion, {
+      foreignKey: 'userId',
+    });
   };
   return User;
 };

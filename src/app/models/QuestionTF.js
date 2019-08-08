@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     pathImage: DataTypes.STRING,
     answer: DataTypes.BOOLEAN,
     user_id: DataTypes.INTEGER,
+    subjectId: DataTypes.INTEGER,
   });
 
   TfQuestion.associate = function (models) {
@@ -11,9 +12,15 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'user_id',
       as: 'user',
     });
+    TfQuestion.belongsTo(models.Subject, {
+      foreignKey: 'subjectId',
+    });
     TfQuestion.belongsToMany(models.Quiz, {
       through: 'QuestionQuiz',
       as: 'dispute',
+      foreignKey: 'tfQuestionId',
+    });
+    TfQuestion.hasMany(models.UserQuestion, {
       foreignKey: 'tfQuestionId',
     });
   };

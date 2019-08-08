@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     option5: DataTypes.STRING(500),
     answer: DataTypes.INTEGER,
     user_id: DataTypes.INTEGER,
+    subjectId: DataTypes.INTEGER,
   });
 
   MeQuestion.associate = function (models) {
@@ -16,9 +17,15 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'user_id',
       as: 'user',
     });
+    MeQuestion.belongsTo(models.Subject, {
+      foreignKey: 'subjectId',
+    });
     MeQuestion.belongsToMany(models.Quiz, {
       through: 'QuestionQuiz',
       as: 'dispute',
+      foreignKey: 'meQuestionId',
+    });
+    MeQuestion.hasMany(models.UserQuestion, {
       foreignKey: 'meQuestionId',
     });
   };

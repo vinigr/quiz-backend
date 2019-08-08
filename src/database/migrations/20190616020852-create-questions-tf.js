@@ -26,6 +26,14 @@ module.exports = {
         key: 'id',
       },
     },
+    subject_id: {
+      allowNull: true,
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'subjects',
+        key: 'id',
+      },
+    },
     created_at: {
       allowNull: false,
       type: DataTypes.DATE,
