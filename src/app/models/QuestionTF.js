@@ -20,9 +20,6 @@ module.exports = (sequelize, DataTypes) => {
       as: 'dispute',
       foreignKey: 'tfQuestionId',
     });
-    TfQuestion.hasMany(models.UserQuestion, {
-      foreignKey: 'tfQuestionId',
-    });
   };
 
   return TfQuestion;

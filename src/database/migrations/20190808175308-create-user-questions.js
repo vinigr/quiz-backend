@@ -6,14 +6,6 @@ module.exports = {
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
-    quiz_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'quizzes',
-        key: 'id',
-      },
-    },
     user_id: {
       allowNull: false,
       type: DataTypes.INTEGER,
@@ -22,19 +14,11 @@ module.exports = {
         key: 'id',
       },
     },
-    me_question_id: {
+    question_id: {
       allowNull: true,
       type: DataTypes.INTEGER,
       references: {
-        model: 'me_questions',
-        key: 'id',
-      },
-    },
-    tf_question_id: {
-      allowNull: true,
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'tf_questions',
+        model: 'question_quizzes',
         key: 'id',
       },
     },

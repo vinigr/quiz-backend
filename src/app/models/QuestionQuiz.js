@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'tfQuestionId',
       as: 'tfQuestion',
     });
+    QuestionQuiz.hasMany(models.UserQuestion, {
+      foreignKey: 'questionId',
+    });
   };
   return QuestionQuiz;
 };

@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING(30),
     subjectId: DataTypes.INTEGER,
     blocked: DataTypes.BOOLEAN,
-    released_at: DataTypes.DATE,
+    releasedAt: DataTypes.DATE,
+    expirationAt: DataTypes.DATE,
   });
 
   Quiz.associate = function (models) {
@@ -19,9 +20,6 @@ module.exports = (sequelize, DataTypes) => {
     Quiz.belongsToMany(models.User, {
       through: 'Dispute',
       as: 'dispute',
-      foreignKey: 'quiz_id',
-    });
-    Quiz.hasMany(models.UserQuestion, {
       foreignKey: 'quiz_id',
     });
   };
