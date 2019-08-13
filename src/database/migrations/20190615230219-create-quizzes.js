@@ -28,7 +28,7 @@ module.exports = {
       type: DataTypes.DATE,
     },
     expiration_at: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.DATE,
     },
     created_at: {
