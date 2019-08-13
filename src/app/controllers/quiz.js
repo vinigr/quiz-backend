@@ -1,11 +1,26 @@
-const { Quiz, QuestionQuiz } = require('../models');
+const {
+  Quiz, QuestionQuiz, TfQuestion, MeQuestion,
+} = require('../models');
 
 const createQuiz = async (req, res) => {
   const {
-    name, date, selectedQuestionsME, selectedQuestionsTF, subjectId,
+    name,
+    releasedDate,
+    expirationDate,
+    selectedQuestionsME,
+    selectedQuestionsTF,
+    subjectId,
   } = req.body;
 
-  const releasedAt = new Date(date).toISOString();
+  let expirationAt = null;
+
+  if (!new Date(releasedDate).toISOString()) return res.status(400).send({ message: 'Data inválida!' });
+
+  const releasedAt = new Date(releasedDate).toISOString();
+
+  if (expirationDate && new Date(expirationDate).toISOString()) {
+    expirationAt = new Date(expirationDate).toISOString();
+  }
 
   const questions = [];
 
@@ -13,7 +28,8 @@ const createQuiz = async (req, res) => {
     const quiz = await Quiz.create({
       name,
       subjectId,
-      released_at: releasedAt,
+      releasedAt,
+      expirationAt,
       blocked: false,
     });
 
@@ -29,10 +45,11 @@ const createQuiz = async (req, res) => {
       tfQuestionId: question,
     }));
 
-    const questionQuiz = await QuestionQuiz.bulkCreate(questions, { returning: true });
+    await QuestionQuiz.bulkCreate(questions);
 
-    return res.status(201).send({ questionQuiz });
+    return res.status(201).send(quiz);
   } catch (error) {
+    console.log(error);
     return res.status(400).send({ message: error });
   }
 };
@@ -43,7 +60,34 @@ const subjectsQuizList = async (req, res) => {
   if (!id) return res.status(400).send({ message: 'Disciplina não informada!' });
 
   try {
-    const listQuiz = await Quiz.findAll({ where: { subjectId: id } });
+    const listQuiz = await Quiz.findAll({
+      where: { subjectId: id },
+    });
+
+    const available = listQuiz.filter(item => item.expirationAt > new Date() || !item.expirationAt);
+    const notAvailable = listQuiz.filter(item => item.expirationAt < new Date() && item.expirationAt);
+
+    return res.status(201).send({ available, notAvailable });
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
+const questionsInQuiz = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) return res.status(400).send({ message: 'Quiz não informado!' });
+
+  try {
+    const listQuiz = await QuestionQuiz.findAll({
+      where: { quiz_id: id },
+      attributes: { include: ['id'] },
+      include: [{
+        model: TfQuestion, as: 'tfQuestion',
+      }, {
+        model: MeQuestion, as: 'meQuestion',
+      }],
+    });
 
     return res.status(201).send(listQuiz);
   } catch (error) {
@@ -54,4 +98,5 @@ const subjectsQuizList = async (req, res) => {
 module.exports = {
   createQuiz,
   subjectsQuizList,
+  questionsInQuiz,
 };
