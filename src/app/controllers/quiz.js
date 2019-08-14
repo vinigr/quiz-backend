@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const differenceInHours = require('date-fns/difference_in_hours');
 const {
-  Quiz, QuestionQuiz, TfQuestion, MeQuestion, UserSubject,
+  Quiz, QuestionQuiz, TfQuestion, MeQuestion, UserSubject, Subject,
 } = require('../models');
 
 const createQuiz = async (req, res) => {
@@ -115,6 +115,9 @@ const findQuizzes = async (req, res) => {
           [Op.or]: subjectsRegistered,
         },
       },
+      include: [{
+        model: Subject, as: 'subject',
+      }],
     });
 
     const listNext = listQuiz.filter(item => differenceInHours(item.expirationAt, new Date()) > 0
