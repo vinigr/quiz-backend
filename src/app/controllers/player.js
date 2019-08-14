@@ -96,6 +96,10 @@ const confirmAccount = async (req, res) => {
 const signIn = async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email) return res.status(400).send({ message: 'Email não informado!' });
+
+  if (!password) return res.status(400).send({ message: 'Senha não informada!' });
+
   const userLocal = await LocalAuth.findOne({ where: { email } });
 
   if (!userLocal) {
