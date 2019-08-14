@@ -46,6 +46,8 @@ router
 
 router
   .post('/createQuiz', [verifyHelper.verifyToken, verifyHelper.isTeacher], quiz.createQuiz)
-  .get('/subjectQuizList/:id', [verifyHelper.verifyToken, verifyHelper.isTeacher], quiz.subjectsQuizList);
+  .get('/subjectQuizList/:id', [verifyHelper.verifyToken], quiz.subjectsQuizList)
+  .get('/questionsQuiz/:id', [verifyHelper.verifyToken], quiz.questionsInQuiz)
+  .get('/allQuizzes/', [verifyHelper.verifyToken], quiz.findQuizzes);
 
 module.exports = router;
