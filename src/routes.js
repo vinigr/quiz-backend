@@ -15,6 +15,7 @@ router
   .post('/signin', player.signIn)
   .post('/verify', [verifyHelper.verifyTokenMobile])
   .put('/forgotPassword', player.forgotPassword)
+  .put('/changePassword', [verifyHelper.verifyToken], player.changePassword)
   .get('/resetPassword/:token', player.resetPassword)
   .put('/updatePassword', player.updatePassword);
 

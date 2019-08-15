@@ -169,7 +169,7 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   const { token } = req.params;
-  // const { Op } = Sequelize;
+
   try {
     const userLocal = await LocalAuth.findOne({
       where: {
@@ -210,12 +210,51 @@ const updatePassword = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) return res.status(403).send({ message: 'Dados insuficientes!' });
+
+  if (currentPassword === newPassword) return res.status(403).send({ message: 'Senhas iguais!' });
+
+  try {
+    const user = await User.findOne({
+      where: { id: req.userId },
+      include: {
+        model: LocalAuth, as: 'l_auth',
+      },
+    });
+
+    if (!user) return res.status(403).send({ message: 'Usuário inválido!' });
+
+    const comparePassword = Helper.comparePassword(user.l_auth.password, currentPassword);
+    if (!comparePassword) return res.status(403).send({ message: 'Senha atual incorreta!' });
+
+    const hashPassword = Helper.hashPassword(newPassword);
+
+    await LocalAuth.update({
+      password: hashPassword,
+    }, {
+      where: {
+        id: user.local_auth,
+      },
+    });
+
+    return res.status(201).json({ message: 'Senha alterada com sucesso!' });
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
 const getUser = async (req, res) => {
   const { userId } = req;
 
   try {
     const user = await User.findOne({
       where: { id: userId },
+      include: {
+        model: LocalAuth, as: 'l_auth',
+      },
     });
 
     if (!user) return res.status(403).send({ message: 'User not found' });
@@ -233,5 +272,6 @@ module.exports = {
   forgotPassword,
   resetPassword,
   updatePassword,
+  changePassword,
   getUser,
 };
