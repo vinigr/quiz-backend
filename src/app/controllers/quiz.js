@@ -1,7 +1,14 @@
 const { Op } = require('sequelize');
 const differenceInHours = require('date-fns/difference_in_hours');
 const {
-  Quiz, QuestionQuiz, TfQuestion, MeQuestion, UserSubject, Subject,
+  Quiz,
+  QuestionQuiz,
+  TfQuestion,
+  MeQuestion,
+  UserSubject,
+  Subject,
+  Dispute,
+  UserQuestion,
 } = require('../models');
 
 const createQuiz = async (req, res) => {
@@ -132,9 +139,123 @@ const findQuizzes = async (req, res) => {
   }
 };
 
+const startQuiz = async (req, res) => {
+  const { id } = req.body;
+
+  if (!id) return res.status(400).send({ message: 'Quiz não informado!' });
+
+  try {
+    const existsDispute = await Dispute.findOne({
+      where: {
+        userId: req.userId,
+      },
+    });
+
+    if (existsDispute) return res.status(400).send({ message: 'Este quiz já foi disputado!' });
+
+    const listQuiz = await QuestionQuiz.findAll({
+      where: { quiz_id: id },
+      attributes: { include: ['id'] },
+      include: [{
+        model: TfQuestion, as: 'tfQuestion',
+      }, {
+        model: MeQuestion, as: 'meQuestion',
+      }],
+    });
+
+    const dispute = await Dispute.create({
+      quizId: id,
+      userId: req.userId,
+      score: 0,
+    });
+
+    return res.status(201).send({ listQuiz, dispute });
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
+const answerQuestion = async (req, res) => {
+  const { disputeId, questionId, answer } = req.body;
+
+  if (!disputeId) return res.status(400).send({ message: 'Quiz não informado!' });
+
+  if (!questionId) return res.status(400).send({ message: 'Questão não informada!' });
+
+  if (answer === null || answer === undefined) return res.status(400).send({ message: 'Resposta não informada!' });
+
+  try {
+    const userQuestion = await UserQuestion.findOne({
+      where: {
+        questionId,
+        userId: req.userId,
+      },
+    });
+
+    if (userQuestion) return res.status(400).send({ message: 'Questão já respondida!' });
+
+    if (answer === 'skip') {
+      await UserQuestion.create({
+        questionId,
+        userId: req.userId,
+        selectedAnswer: 'skip',
+        result: 'skip',
+      });
+      return res.status(201).send();
+    }
+
+    const question = await QuestionQuiz.findOne({
+      where: { id: questionId },
+      include: [{
+        model: TfQuestion, as: 'tfQuestion',
+      }, {
+        model: MeQuestion, as: 'meQuestion',
+      }],
+    });
+
+    let result;
+    if (question.tfQuestion) {
+      question.tfQuestion.answer === answer ? result = 'hit' : result = 'error';
+    }
+
+    if (question.meQuestion) {
+      question.meQuestion.answer === answer ? result = 'hit' : result = 'error';
+    }
+
+    if (result === 'hit') {
+      await Dispute.increment({
+        score: 1,
+      }, {
+        where: { id: disputeId },
+      });
+    }
+
+    if (result === 'error') {
+      await Dispute.decrement({
+        score: 1,
+      }, {
+        where: { id: disputeId },
+      });
+    }
+
+    await UserQuestion.create({
+      questionId,
+      userId: req.userId,
+      selectedAnswer: answer,
+      result,
+    });
+
+    return res.status(201).send();
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
 module.exports = {
   createQuiz,
   subjectsQuizList,
   questionsInQuiz,
   findQuizzes,
+  startQuiz,
+  answerQuestion,
 };
