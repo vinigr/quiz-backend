@@ -7,12 +7,10 @@ module.exports = (sequelize, DataTypes) => {
 
   Dispute.associate = function (models) {
     Dispute.belongsTo(models.Quiz, {
-      foreignKey: 'quiz_id',
-      as: 'quiz',
+      foreignKey: 'quizId',
     });
     Dispute.belongsTo(models.User, {
-      foreignKey: 'user_id',
-      as: 'user',
+      foreignKey: 'userId',
     });
   };
   return Dispute;
