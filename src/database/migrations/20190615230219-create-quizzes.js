@@ -23,6 +23,11 @@ module.exports = {
       defaultValue: false,
       type: DataTypes.BOOLEAN,
     },
+    feedback_answer: {
+      allowNull: false,
+      defaultValue: false,
+      type: DataTypes.BOOLEAN,
+    },
     released_at: {
       allowNull: false,
       type: DataTypes.DATE,
