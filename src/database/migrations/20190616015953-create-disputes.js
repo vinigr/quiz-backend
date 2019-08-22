@@ -22,6 +22,10 @@ module.exports = {
         key: 'id',
       },
     },
+    status: {
+      allowNull: true,
+      type: DataTypes.STRING(10),
+    },
     score: {
       allowNull: false,
       type: DataTypes.INTEGER,
