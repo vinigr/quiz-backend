@@ -4,7 +4,7 @@ const createQuestionME = async (req, res) => {
   const { file = null } = req;
 
   const {
-    question, options, answer, subjectId,
+    question, options, answer, explanation, subjectId,
   } = req.body;
 
   if (!question || !options || !answer) {
@@ -31,6 +31,7 @@ const createQuestionME = async (req, res) => {
       option4,
       option5,
       answer,
+      explanation,
       user_id: req.userId,
       subjectId,
     });
@@ -58,7 +59,9 @@ const questionsMe = async (req, res) => {
 const createQuestionTF = async (req, res) => {
   const { file = null } = req;
 
-  const { question, answer, subjectId } = req.body;
+  const {
+    question, answer, explanation, subjectId,
+  } = req.body;
 
   if (!question || !answer) {
     return res.status(400).send({ message: 'Questão incompleta!' });
@@ -70,6 +73,7 @@ const createQuestionTF = async (req, res) => {
       pathImage: file && file.path,
       answer,
       user_id: req.userId,
+      explanation,
       subjectId,
     });
 
