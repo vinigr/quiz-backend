@@ -1,8 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
   const TfQuestion = sequelize.define('TfQuestion', {
-    question: DataTypes.STRING,
+    question: DataTypes.TEXT,
     pathImage: DataTypes.STRING,
     answer: DataTypes.BOOLEAN,
+    explanation: DataTypes.TEXT,
     user_id: DataTypes.INTEGER,
     subjectId: DataTypes.INTEGER,
   });

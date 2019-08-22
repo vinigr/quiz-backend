@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING(30),
     subjectId: DataTypes.INTEGER,
     blocked: DataTypes.BOOLEAN,
+    feedbackAnswer: DataTypes.BOOLEAN,
     releasedAt: DataTypes.DATE,
     expirationAt: DataTypes.DATE,
   });

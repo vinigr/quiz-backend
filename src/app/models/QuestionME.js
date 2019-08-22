@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const MeQuestion = sequelize.define('MeQuestion', {
-    question: DataTypes.STRING,
+    question: DataTypes.TEXT,
     pathImage: DataTypes.STRING,
     option1: DataTypes.STRING(500),
     option2: DataTypes.STRING(500),
@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     option4: DataTypes.STRING(500),
     option5: DataTypes.STRING(500),
     answer: DataTypes.INTEGER,
+    explanation: DataTypes.TEXT,
     user_id: DataTypes.INTEGER,
     subjectId: DataTypes.INTEGER,
   });

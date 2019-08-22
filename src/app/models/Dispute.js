@@ -2,6 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const Dispute = sequelize.define('Dispute', {
     quizId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
+    status: DataTypes.STRING(10),
     score: DataTypes.INTEGER,
   });
 
