@@ -8,7 +8,7 @@ module.exports = {
     },
     question: {
       allowNull: false,
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
     },
     path_image: {
       allowNull: true,
@@ -17,6 +17,10 @@ module.exports = {
     answer: {
       allowNull: false,
       type: DataTypes.BOOLEAN,
+    },
+    explanation: {
+      allowNull: true,
+      type: DataTypes.TEXT,
     },
     user_id: {
       allowNull: false,
