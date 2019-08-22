@@ -18,6 +18,7 @@ const createQuiz = async (req, res) => {
     expirationDate,
     selectedQuestionsME,
     selectedQuestionsTF,
+    feedbackAnswer,
     subjectId,
   } = req.body;
 
@@ -39,6 +40,7 @@ const createQuiz = async (req, res) => {
       subjectId,
       releasedAt,
       expirationAt,
+      feedbackAnswer,
       blocked: false,
     });
 
