@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, fn, col } = require('sequelize');
 const differenceInHours = require('date-fns/difference_in_hours');
 const {
   Quiz,
@@ -84,6 +84,38 @@ const subjectsQuizList = async (req, res) => {
   }
 };
 
+const allQuizTeacher = async (req, res) => {
+  const { userId } = req;
+
+  try {
+    const subjects = await Subject.findAll({
+      where: {
+        userId,
+      },
+    });
+
+    const subjectsRegistered = subjects.map(subject => subject.id);
+
+    const listQuiz = await Quiz.findAll({
+      where: {
+        subjectId: {
+          [Op.or]: subjectsRegistered,
+        },
+      },
+      include: [{
+        model: Subject, as: 'subject',
+      }],
+    });
+
+    const available = listQuiz.filter(item => item.expirationAt > new Date() || !item.expirationAt);
+    const notAvailable = listQuiz.filter(item => item.expirationAt < new Date() && item.expirationAt);
+
+    return res.status(201).send({ available, notAvailable });
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
 const questionsInQuiz = async (req, res) => {
   const { id } = req.params;
 
@@ -105,6 +137,7 @@ const questionsInQuiz = async (req, res) => {
     return res.status(400).send({ message: error });
   }
 };
+
 
 const findQuizzes = async (req, res) => {
   const { userId } = req;
@@ -253,11 +286,59 @@ const answerQuestion = async (req, res) => {
   }
 };
 
+const quizStatus = async (req, res) => {
+  const { quizId } = req.params;
+
+  if (!quizId) return res.status(400).send({ message: 'Quiz não informado!' });
+
+  try {
+    const disputes = await Dispute.count({
+      where: {
+        quizId,
+      },
+    });
+
+    const questions = await QuestionQuiz.findAll({
+      where: {
+        quiz_id: quizId,
+      },
+      attributes: { include: ['id'] },
+      include: [{
+        model: TfQuestion, as: 'tfQuestion',
+      }, {
+        model: MeQuestion, as: 'meQuestion',
+      }],
+    });
+
+    const questionsId = questions.map(question => question.id);
+
+    const questionsAnswered = await UserQuestion.findAll({
+      attributes: ['question_id', [fn('COUNT', col('question_id')), 'total'], 'result'],
+      group: ['question_id', 'result'],
+      where: {
+        questionId: {
+          [Op.or]: questionsId,
+        },
+      },
+    });
+
+
+    return res.status(201).send({
+      disputes, questions, questionsAnswered,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({ message: error });
+  }
+};
+
 module.exports = {
   createQuiz,
   subjectsQuizList,
+  allQuizTeacher,
   questionsInQuiz,
   findQuizzes,
   startQuiz,
   answerQuestion,
+  quizStatus,
 };
