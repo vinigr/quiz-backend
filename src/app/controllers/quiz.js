@@ -313,15 +313,14 @@ const quizStatus = async (req, res) => {
     const questionsId = questions.map(question => question.id);
 
     const questionsAnswered = await UserQuestion.findAll({
-      attributes: ['question_id', [fn('COUNT', col('question_id')), 'total'], 'result'],
-      group: ['question_id', 'result'],
+      attributes: ['question_id', [fn('COUNT', col('question_id')), 'total'], 'result', 'selectedAnswer'],
+      group: ['question_id', 'result', 'selectedAnswer'],
       where: {
         questionId: {
           [Op.or]: questionsId,
         },
       },
     });
-
 
     return res.status(201).send({
       disputes, questions, questionsAnswered,
