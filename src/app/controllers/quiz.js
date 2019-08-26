@@ -60,7 +60,6 @@ const createQuiz = async (req, res) => {
 
     return res.status(201).send(quiz);
   } catch (error) {
-    console.log(error);
     return res.status(400).send({ message: error });
   }
 };
@@ -149,6 +148,8 @@ const findQuizzes = async (req, res) => {
       },
     });
 
+    if (!subjects || subjects.length === 0) return res.status(400).send({ message: 'Nenhum quiz disponível' });
+
     const subjectsRegistered = subjects.map(subject => subject.subject_id);
 
     const listQuiz = await Quiz.findAll({
@@ -201,6 +202,7 @@ const startQuiz = async (req, res) => {
     const dispute = await Dispute.create({
       quizId: id,
       userId: req.userId,
+      status: 'started',
       score: 0,
     });
 
