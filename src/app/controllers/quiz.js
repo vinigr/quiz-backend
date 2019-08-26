@@ -150,10 +150,20 @@ const findQuizzes = async (req, res) => {
 
     if (!subjects || subjects.length === 0) return res.status(400).send({ message: 'Nenhum quiz disponível' });
 
+    const disputes = await Dispute.findAll({
+      where: {
+        userId,
+      },
+    });
+
     const subjectsRegistered = subjects.map(subject => subject.subject_id);
+    const disputesRegistered = disputes.map(dispute => dispute.quizId);
 
     const listQuiz = await Quiz.findAll({
       where: {
+        id: {
+          [Op.ne]: disputesRegistered,
+        },
         subjectId: {
           [Op.or]: subjectsRegistered,
         },
