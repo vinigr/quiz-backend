@@ -162,7 +162,7 @@ const findQuizzes = async (req, res) => {
     const listQuiz = await Quiz.findAll({
       where: {
         id: {
-          [Op.ne]: disputesRegistered,
+          [Op.notIn]: disputesRegistered.length !== 0 ? disputesRegistered : null,
         },
         subjectId: {
           [Op.or]: subjectsRegistered,
@@ -194,6 +194,7 @@ const startQuiz = async (req, res) => {
     const existsDispute = await Dispute.findOne({
       where: {
         userId: req.userId,
+        quizId: id,
       },
     });
 
@@ -239,16 +240,9 @@ const answerQuestion = async (req, res) => {
       },
     });
 
-    if (userQuestion) return res.status(400).send({ message: 'Questão já respondida!' });
-
-    if (answer === 'skip') {
-      await UserQuestion.create({
-        questionId,
-        userId: req.userId,
-        selectedAnswer: 'skip',
-        result: 'skip',
-      });
-      return res.status(201).send();
+    if (userQuestion) {
+      return res.status(400)
+        .send({ message: 'Questão já respondida!' });
     }
 
     const question = await QuestionQuiz.findOne({
@@ -259,6 +253,20 @@ const answerQuestion = async (req, res) => {
         model: MeQuestion, as: 'meQuestion',
       }],
     });
+
+    const answerCurrent = question.meQuestion
+      ? question.meQuestion.answer : question.tfQuestion.answer;
+
+    if (answer === 'skip') {
+      await UserQuestion.create({
+        questionId,
+        userId: req.userId,
+        selectedAnswer: 'skip',
+        result: 'skip',
+      });
+
+      return res.status(201).send({ answer: answerCurrent });
+    }
 
     let result;
     if (question.tfQuestion) {
@@ -292,7 +300,7 @@ const answerQuestion = async (req, res) => {
       result,
     });
 
-    return res.status(201).send();
+    return res.status(201).send({ answer: answerCurrent });
   } catch (error) {
     return res.status(400).send({ message: error });
   }

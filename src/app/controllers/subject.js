@@ -52,7 +52,7 @@ const registrationInSubject = async (req, res) => {
   try {
     const subject = await Subject.findOne({
       where: {
-        accessCode,
+        accessCode: accessCode.toUpperCase(),
       },
       include: [{
         model: User, as: 'user',
