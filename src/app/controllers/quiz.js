@@ -156,13 +156,13 @@ const findQuizzes = async (req, res) => {
       },
     });
 
-    const subjectsRegistered = subjects.map(subject => subject.subject_id);
-    const disputesRegistered = disputes.map(dispute => dispute.quizId);
+    const subjectsRegistered = subjects.length !== 0 ? subjects.map(subject => subject.subject_id) : [];
+    const disputesRegistered = disputes.length !== 0 ? disputes.map(dispute => dispute.quizId) : [];
 
     const listQuiz = await Quiz.findAll({
       where: {
         id: {
-          [Op.notIn]: disputesRegistered.length !== 0 ? disputesRegistered : null,
+          [Op.notIn]: disputesRegistered,
         },
         subjectId: {
           [Op.or]: subjectsRegistered,
