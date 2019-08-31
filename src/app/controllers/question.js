@@ -24,7 +24,7 @@ const createQuestionME = async (req, res) => {
   try {
     const questionResp = await MeQuestion.create({
       question,
-      pathImage: file && file.path,
+      pathImage: file && file.url,
       option1: jsonOptions[0].option,
       option2: jsonOptions[1].option,
       option3,
@@ -70,7 +70,7 @@ const createQuestionTF = async (req, res) => {
   try {
     const questionResp = await TfQuestion.create({
       question,
-      pathImage: file && file.path,
+      pathImage: file && file.url,
       answer,
       user_id: req.userId,
       explanation,
