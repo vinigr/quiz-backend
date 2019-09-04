@@ -1,6 +1,7 @@
 const { Op, fn, col } = require('sequelize');
 const differenceInHours = require('date-fns/difference_in_hours');
 const {
+  User,
   Quiz,
   QuestionQuiz,
   TfQuestion,
@@ -351,6 +352,81 @@ const quizStatus = async (req, res) => {
   }
 };
 
+const allDisputesPlayer = async (req, res) => {
+  const { userId } = req;
+
+  try {
+    const disputes = await Dispute.findAll({
+      where: {
+        userId,
+      },
+      attributes: { include: ['id'] },
+      include: [{
+        model: Quiz, as: 'Quiz',
+      }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    if (!disputes || disputes.length === 0) return res.status(400).send({ message: 'Nenhum quiz disputado!' });
+
+    return res.status(201).send({
+      disputes,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({ message: error });
+  }
+};
+
+const statusDisputePlayer = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const disputes = await Dispute.findAll({
+      where: {
+        quizId: id,
+      },
+      include: {
+        model: User, attributes: ['id', 'name'],
+      },
+      attributes: { include: ['id'] },
+      order: [['score', 'DESC']],
+    });
+
+    if (!disputes || disputes.length === 0) return res.status(400).send({ message: 'Nenhum quiz disputado!' });
+
+    const questions = await QuestionQuiz.findAll({
+      where: {
+        quiz_id: id,
+      },
+      attributes: { include: ['id'] },
+      include: [{
+        model: TfQuestion, as: 'tfQuestion',
+      }, {
+        model: MeQuestion, as: 'meQuestion',
+      }],
+    });
+
+    const questionsId = questions.map(question => question.id);
+
+    const answers = await UserQuestion.findAll({
+      where: {
+        questionId: {
+          [Op.or]: questionsId,
+        },
+        userId: req.userId,
+      },
+      attributes: ['id', 'questionId', 'selectedAnswer'],
+    });
+
+    return res.status(201).send({
+      disputes, questions, answers,
+    });
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
 module.exports = {
   createQuiz,
   subjectsQuizList,
@@ -360,4 +436,6 @@ module.exports = {
   startQuiz,
   answerQuestion,
   quizStatus,
+  allDisputesPlayer,
+  statusDisputePlayer,
 };

@@ -1,6 +1,5 @@
 const router = require('express').Router();
-const multer = require('multer');
-const multerConfig = require('./config/multer');
+const parser = require('./config/multer');
 
 const verifyHelper = require('./app/helper/verifyJwtToken');
 const player = require('./app/controllers/player');
@@ -38,9 +37,9 @@ router
   .get('/teacher/subjects', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.subjectsTeacher);
 
 router
-  .post('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], multer(multerConfig).single('image'), question.createQuestionME)
+  .post('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], parser.single('image'), question.createQuestionME)
   .get('/questionMe', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsMe)
-  .post('/questionTf', [verifyHelper.verifyToken, verifyHelper.isTeacher], multer(multerConfig).single('image'), question.createQuestionTF)
+  .post('/questionTf', [verifyHelper.verifyToken, verifyHelper.isTeacher], parser.single('image'), question.createQuestionTF)
   .get('/questionTf', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsTf)
   .get('/questionsAll', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.questionsAll)
   .get('/questionsSubject/:id', [verifyHelper.verifyToken, verifyHelper.isTeacher], question.allQuestionsSubject);
@@ -53,6 +52,8 @@ router
   .get('/allQuizzes', [verifyHelper.verifyToken], quiz.findQuizzes)
   .post('/startQuiz', [verifyHelper.verifyToken], quiz.startQuiz)
   .post('/answerQuestion', [verifyHelper.verifyToken], quiz.answerQuestion)
-  .get('/statusQuiz/:quizId', [verifyHelper.verifyToken, verifyHelper.isTeacher], quiz.quizStatus);
+  .get('/statusQuiz/:quizId', [verifyHelper.verifyToken, verifyHelper.isTeacher], quiz.quizStatus)
+  .post('/disputesList', [verifyHelper.verifyToken], quiz.allDisputesPlayer)
+  .get('/result/:id', [verifyHelper.verifyToken], quiz.statusDisputePlayer);
 
 module.exports = router;
