@@ -47,7 +47,7 @@ router
 router
   .get("/user/subjects", [verifyHelper.verifyToken], userSubject.userSubjects)
   .delete(
-    "/subject/unsubscribe",
+    "/user/unsubscribe/:id",
     [verifyHelper.verifyToken],
     userSubject.unsubscribe
   );
