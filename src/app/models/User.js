@@ -38,6 +38,9 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.UserQuestion, {
       foreignKey: 'userId',
     });
+    User.hasMany(models.DeviceNotification, {
+      foreignKey: 'userId',
+    });
   };
   return User;
 };
