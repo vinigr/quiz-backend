@@ -3649,6 +3649,13 @@ once@^1.3.0, once@^1.3.1, once@^1.4.0:
   dependencies:
     wrappy "1"
 
+onesignal-node@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/onesignal-node/-/onesignal-node-2.1.1.tgz#6e2423910449ac9f841e94790f761c9f6310060a"
+  integrity sha512-DlsunPQR5NFmJlsAXSDgg2ZXj8hjLbCJ4uwFMh+JeR2DJinUCa1LPSEUgY6DWiVfA2PGhshO45kCR6w4AVKFVw==
+  dependencies:
+    request "^2.88.0"
+
 onetime@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/onetime/-/onetime-2.0.1.tgz#067428230fd67443b2794b22bba528b6867962d4"
@@ -4255,7 +4262,7 @@ request-promise-native@^1.0.5:
     stealthy-require "^1.1.1"
     tough-cookie "^2.3.3"
 
-request@^2.87.0:
+request@^2.87.0, request@^2.88.0:
   version "2.88.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.0.tgz#9c2fca4f7d35b592efe57c7f0a55e81052124fef"
   integrity sha512-NAqBSrijGLZdM0WZNsInLJpkJokL72XYjUpnB0iwsRgxh7dB6COrHnTBNwN0E+lHDAJzu7kLAkDeY08z2/A0hg==
