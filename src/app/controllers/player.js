@@ -1,8 +1,9 @@
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
+const OneSignal = require('onesignal-node');
 const addMinutes = require('date-fns/add_minutes');
-const { User, LocalAuth } = require('../models');
+const { User, LocalAuth, DeviceNotification } = require('../models');
 const Helper = require('../helper');
 
 const signUp = async (req, res) => {
@@ -13,7 +14,7 @@ const signUp = async (req, res) => {
   });
 
   const {
-    name, email, password, groupUser = 1,
+    name, email, password, groupUser = 1, userNotification,
   } = req.body;
 
   if (!name || !email || !password) {
@@ -26,7 +27,7 @@ const signUp = async (req, res) => {
 
   const groupNum = parseFloat(groupUser);
 
-  if ((groupNum !== 1) && (groupNum !== 2)) {
+  if (groupNum !== 1 && groupNum !== 2) {
     return res.status(400).send({ message: 'Grupo de usuário não reconhecido!' });
   }
 
@@ -57,11 +58,37 @@ const signUp = async (req, res) => {
       to: `${user.name} <${userLocal.email}>`,
       subject: `Bem vindo ${user.name}`,
       text:
-      'You are receiving this because you (or someone else) have requested the create a account in we application.\n\n'
-      + 'Please click on the following link, or paste this into your browser to complete the process within two days of receiving it:\n\n'
-      + `http://localhost:3000/confirmation/${confirmCode}\n\n`
-      + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+        'You are receiving this because you (or someone else) have requested the create a account in we application.\n\n'
+        + 'Please click on the following link, or paste this into your browser to complete the process within two days of receiving it:\n\n'
+        + `http://localhost:3000/confirmation/${confirmCode}\n\n`
+        + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
     });
+    console.log(userNotification);
+    if (userNotification) {
+      await DeviceNotification.create({
+        deviceUuid: userNotification,
+        userId: user.id,
+      });
+
+      const myClient = new OneSignal.Client({
+        userAuthKey: process.env.ONESIGNAL_USER_AUTH_KEY,
+        // note that "app" must have "appAuthKey" and "appId" keys
+        app: {
+          appAuthKey: process.env.ONESIGNAL_APP_AUTH_KEY,
+          appId: '861ffbdb-a413-413d-a0e9-dc4ff86072f9',
+        },
+      });
+
+      const notification = new OneSignal.Notification({
+        contents: {
+          en: 'Welcome',
+          pt: 'Bem-vindo',
+        },
+        include_player_ids: [`${userNotification}`],
+      });
+
+      myClient.sendNotification(notification);
+    }
 
     return res.status(201).send({ token });
   } catch (error) {
@@ -103,17 +130,13 @@ const signIn = async (req, res) => {
   const userLocal = await LocalAuth.findOne({ where: { email } });
 
   if (!userLocal) {
-    return res
-      .status(404)
-      .send({ message: 'Usuário não encontrado.' });
+    return res.status(404).send({ message: 'Usuário não encontrado.' });
   }
 
   const compareSenha = Helper.comparePassword(userLocal.password, password);
 
   if (!compareSenha) {
-    return res
-      .status(400)
-      .send({ message: 'Invalid credentials' });
+    return res.status(400).send({ message: 'Invalid credentials' });
   }
 
   userLocal.password = undefined;
@@ -124,13 +147,11 @@ const signIn = async (req, res) => {
   return res.status(201).send({ token });
 };
 
-
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    res.status(400)
-      .send({ message: 'Required email' });
+    res.status(400).send({ message: 'Required email' });
   }
 
   const transport = nodemailer.createTransport({
@@ -161,7 +182,10 @@ const forgotPassword = async (req, res) => {
         + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
     });
 
-    return res.status(201).json({ message: 'Aguarde...\n O E-mail de recuperação será enviado em instantes e é válido por 10 minutos.' });
+    return res.status(201).json({
+      message:
+        'Aguarde...\n O E-mail de recuperação será enviado em instantes e é válido por 10 minutos.',
+    });
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -180,7 +204,11 @@ const resetPassword = async (req, res) => {
       },
     });
 
-    if (!userLocal) return res.status(403).send({ message: 'O link de redefinição de senha é inválido ou expirou!' });
+    if (!userLocal) {
+      return res
+        .status(403)
+        .send({ message: 'O link de redefinição de senha é inválido ou expirou!' });
+    }
 
     return res.status(201).json({ id: userLocal.id });
   } catch (error) {
@@ -221,7 +249,8 @@ const changePassword = async (req, res) => {
     const user = await User.findOne({
       where: { id: req.userId },
       include: {
-        model: LocalAuth, as: 'l_auth',
+        model: LocalAuth,
+        as: 'l_auth',
       },
     });
 
@@ -232,13 +261,16 @@ const changePassword = async (req, res) => {
 
     const hashPassword = Helper.hashPassword(newPassword);
 
-    await LocalAuth.update({
-      password: hashPassword,
-    }, {
-      where: {
-        id: user.local_auth,
+    await LocalAuth.update(
+      {
+        password: hashPassword,
       },
-    });
+      {
+        where: {
+          id: user.local_auth,
+        },
+      },
+    );
 
     return res.status(201).json({ message: 'Senha alterada com sucesso!' });
   } catch (error) {
@@ -253,7 +285,8 @@ const getUser = async (req, res) => {
     const user = await User.findOne({
       where: { id: userId },
       include: {
-        model: LocalAuth, as: 'l_auth',
+        model: LocalAuth,
+        as: 'l_auth',
       },
     });
 
@@ -261,6 +294,29 @@ const getUser = async (req, res) => {
 
     return res.status(200).send(user);
   } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
+const logout = async (req, res) => {
+  const { userId } = req;
+  const { userNotification } = req.body;
+
+  try {
+    const device = await DeviceNotification.findOne({
+      where: {
+        userId,
+        deviceUuid: userNotification,
+      },
+    });
+
+    if (!device) return res.status(403).send({ message: 'Dispositivo não encontrado!' });
+
+    device.destroy();
+
+    return res.status(200).send();
+  } catch (error) {
+    console.log(error);
     return res.status(400).send({ message: error });
   }
 };
@@ -274,4 +330,5 @@ module.exports = {
   updatePassword,
   changePassword,
   getUser,
+  logout,
 };
