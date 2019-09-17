@@ -1,4 +1,5 @@
 const { Op, fn, col } = require('sequelize');
+const OneSignal = require('onesignal-node');
 const differenceInHours = require('date-fns/difference_in_hours');
 const {
   User,
@@ -10,6 +11,7 @@ const {
   Subject,
   Dispute,
   UserQuestion,
+  DeviceNotification,
 } = require('../models');
 
 const createQuiz = async (req, res) => {
@@ -59,8 +61,50 @@ const createQuiz = async (req, res) => {
 
     await QuestionQuiz.bulkCreate(questions);
 
+    const usersRegistered = await UserSubject.findAll({
+      where: {
+        subject_id: subjectId,
+      },
+      attributes: ['user_id'],
+    });
+
+    const users = usersRegistered.map(user => user.user_id);
+
+    if (usersRegistered.length > 0) {
+      const devices = await DeviceNotification.findAll({
+        where: {
+          userId: {
+            [Op.or]: users,
+          },
+        },
+        attributes: ['deviceUuid'],
+      });
+
+      const playerIncludeNotification = devices.map(device => device.deviceUuid);
+
+      const myClient = new OneSignal.Client({
+        userAuthKey: process.env.ONESIGNAL_USER_AUTH_KEY,
+        // note that "app" must have "appAuthKey" and "appId" keys
+        app: {
+          appAuthKey: process.env.ONESIGNAL_APP_AUTH_KEY,
+          appId: '861ffbdb-a413-413d-a0e9-dc4ff86072f9',
+        },
+      });
+
+      const notification = new OneSignal.Notification({
+        contents: {
+          en: 'New quiz',
+          pt: 'Novo quiz',
+        },
+        include_player_ids: playerIncludeNotification,
+      });
+
+      myClient.sendNotification(notification);
+    }
+
     return res.status(201).send(quiz);
   } catch (error) {
+    console.log(error);
     return res.status(400).send({ message: error });
   }
 };
@@ -76,7 +120,9 @@ const subjectsQuizList = async (req, res) => {
     });
 
     const available = listQuiz.filter(item => item.expirationAt > new Date() || !item.expirationAt);
-    const notAvailable = listQuiz.filter(item => item.expirationAt < new Date() && item.expirationAt);
+    const notAvailable = listQuiz.filter(
+      item => item.expirationAt < new Date() && item.expirationAt,
+    );
 
     return res.status(201).send({ available, notAvailable });
   } catch (error) {
@@ -102,13 +148,18 @@ const allQuizTeacher = async (req, res) => {
           [Op.or]: subjectsRegistered,
         },
       },
-      include: [{
-        model: Subject, as: 'subject',
-      }],
+      include: [
+        {
+          model: Subject,
+          as: 'subject',
+        },
+      ],
     });
 
     const available = listQuiz.filter(item => item.expirationAt > new Date() || !item.expirationAt);
-    const notAvailable = listQuiz.filter(item => item.expirationAt < new Date() && item.expirationAt);
+    const notAvailable = listQuiz.filter(
+      item => item.expirationAt < new Date() && item.expirationAt,
+    );
 
     return res.status(201).send({ available, notAvailable });
   } catch (error) {
@@ -125,11 +176,16 @@ const questionsInQuiz = async (req, res) => {
     const listQuiz = await QuestionQuiz.findAll({
       where: { quiz_id: id },
       attributes: { include: ['id'] },
-      include: [{
-        model: TfQuestion, as: 'tfQuestion',
-      }, {
-        model: MeQuestion, as: 'meQuestion',
-      }],
+      include: [
+        {
+          model: TfQuestion,
+          as: 'tfQuestion',
+        },
+        {
+          model: MeQuestion,
+          as: 'meQuestion',
+        },
+      ],
     });
 
     return res.status(201).send(listQuiz);
@@ -137,7 +193,6 @@ const questionsInQuiz = async (req, res) => {
     return res.status(400).send({ message: error });
   }
 };
-
 
 const findQuizzes = async (req, res) => {
   const { userId } = req;
@@ -169,16 +224,22 @@ const findQuizzes = async (req, res) => {
           [Op.or]: subjectsRegistered,
         },
       },
-      include: [{
-        model: Subject, as: 'subject',
-      }],
+      include: [
+        {
+          model: Subject,
+          as: 'subject',
+        },
+      ],
     });
 
-    const listNext = listQuiz.filter(item => differenceInHours(item.expirationAt, new Date()) > 0
-      && differenceInHours(item.expirationAt, new Date()) <= 168);
+    const listNext = listQuiz.filter(
+      item => differenceInHours(item.expirationAt, new Date()) > 0
+        && differenceInHours(item.expirationAt, new Date()) <= 168,
+    );
 
-    const listOthers = listQuiz.filter(item => differenceInHours(item.expirationAt, new Date()) > 168
-    || !item.expirationAt);
+    const listOthers = listQuiz.filter(
+      item => differenceInHours(item.expirationAt, new Date()) > 168 || !item.expirationAt,
+    );
 
     return res.status(200).send({ listNext, listOthers });
   } catch (error) {
@@ -204,11 +265,16 @@ const startQuiz = async (req, res) => {
     const listQuiz = await QuestionQuiz.findAll({
       where: { quiz_id: id },
       attributes: { include: ['id'] },
-      include: [{
-        model: TfQuestion, as: 'tfQuestion',
-      }, {
-        model: MeQuestion, as: 'meQuestion',
-      }],
+      include: [
+        {
+          model: TfQuestion,
+          as: 'tfQuestion',
+        },
+        {
+          model: MeQuestion,
+          as: 'meQuestion',
+        },
+      ],
     });
 
     const dispute = await Dispute.create({
@@ -242,21 +308,26 @@ const answerQuestion = async (req, res) => {
     });
 
     if (userQuestion) {
-      return res.status(400)
-        .send({ message: 'Questão já respondida!' });
+      return res.status(400).send({ message: 'Questão já respondida!' });
     }
 
     const question = await QuestionQuiz.findOne({
       where: { id: questionId },
-      include: [{
-        model: TfQuestion, as: 'tfQuestion',
-      }, {
-        model: MeQuestion, as: 'meQuestion',
-      }],
+      include: [
+        {
+          model: TfQuestion,
+          as: 'tfQuestion',
+        },
+        {
+          model: MeQuestion,
+          as: 'meQuestion',
+        },
+      ],
     });
 
     const answerCurrent = question.meQuestion
-      ? question.meQuestion.answer : question.tfQuestion.answer;
+      ? question.meQuestion.answer
+      : question.tfQuestion.answer;
 
     if (answer === 'skip') {
       await UserQuestion.create({
@@ -271,27 +342,33 @@ const answerQuestion = async (req, res) => {
 
     let result;
     if (question.tfQuestion) {
-      question.tfQuestion.answer === answer ? result = 'hit' : result = 'error';
+      question.tfQuestion.answer === answer ? (result = 'hit') : (result = 'error');
     }
 
     if (question.meQuestion) {
-      question.meQuestion.answer === answer ? result = 'hit' : result = 'error';
+      question.meQuestion.answer === answer ? (result = 'hit') : (result = 'error');
     }
 
     if (result === 'hit') {
-      await Dispute.increment({
-        score: 1,
-      }, {
-        where: { id: disputeId },
-      });
+      await Dispute.increment(
+        {
+          score: 1,
+        },
+        {
+          where: { id: disputeId },
+        },
+      );
     }
 
     if (result === 'error') {
-      await Dispute.decrement({
-        score: 1,
-      }, {
-        where: { id: disputeId },
-      });
+      await Dispute.decrement(
+        {
+          score: 1,
+        },
+        {
+          where: { id: disputeId },
+        },
+      );
     }
 
     await UserQuestion.create({
@@ -324,17 +401,27 @@ const quizStatus = async (req, res) => {
         quiz_id: quizId,
       },
       attributes: { include: ['id'] },
-      include: [{
-        model: TfQuestion, as: 'tfQuestion',
-      }, {
-        model: MeQuestion, as: 'meQuestion',
-      }],
+      include: [
+        {
+          model: TfQuestion,
+          as: 'tfQuestion',
+        },
+        {
+          model: MeQuestion,
+          as: 'meQuestion',
+        },
+      ],
     });
 
     const questionsId = questions.map(question => question.id);
 
     const questionsAnswered = await UserQuestion.findAll({
-      attributes: ['question_id', [fn('COUNT', col('question_id')), 'total'], 'result', 'selectedAnswer'],
+      attributes: [
+        'question_id',
+        [fn('COUNT', col('question_id')), 'total'],
+        'result',
+        'selectedAnswer',
+      ],
       group: ['question_id', 'result', 'selectedAnswer'],
       where: {
         questionId: {
@@ -344,7 +431,9 @@ const quizStatus = async (req, res) => {
     });
 
     return res.status(201).send({
-      disputes, questions, questionsAnswered,
+      disputes,
+      questions,
+      questionsAnswered,
     });
   } catch (error) {
     console.log(error);
@@ -361,9 +450,12 @@ const allDisputesPlayer = async (req, res) => {
         userId,
       },
       attributes: { include: ['id'] },
-      include: [{
-        model: Quiz, as: 'Quiz',
-      }],
+      include: [
+        {
+          model: Quiz,
+          as: 'Quiz',
+        },
+      ],
       order: [['createdAt', 'DESC']],
     });
 
@@ -387,7 +479,8 @@ const statusDisputePlayer = async (req, res) => {
         quizId: id,
       },
       include: {
-        model: User, attributes: ['id', 'name'],
+        model: User,
+        attributes: ['id', 'name'],
       },
       attributes: { include: ['id'] },
       order: [['score', 'DESC']],
@@ -400,11 +493,16 @@ const statusDisputePlayer = async (req, res) => {
         quiz_id: id,
       },
       attributes: { include: ['id'] },
-      include: [{
-        model: TfQuestion, as: 'tfQuestion',
-      }, {
-        model: MeQuestion, as: 'meQuestion',
-      }],
+      include: [
+        {
+          model: TfQuestion,
+          as: 'tfQuestion',
+        },
+        {
+          model: MeQuestion,
+          as: 'meQuestion',
+        },
+      ],
     });
 
     const questionsId = questions.map(question => question.id);
@@ -420,7 +518,9 @@ const statusDisputePlayer = async (req, res) => {
     });
 
     return res.status(201).send({
-      disputes, questions, answers,
+      disputes,
+      questions,
+      answers,
     });
   } catch (error) {
     return res.status(400).send({ message: error });
