@@ -1,7 +1,6 @@
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
-const OneSignal = require('onesignal-node');
 const addMinutes = require('date-fns/add_minutes');
 const { User, LocalAuth, DeviceNotification } = require('../models');
 const Helper = require('../helper');
@@ -63,31 +62,12 @@ const signUp = async (req, res) => {
         + `http://localhost:3000/confirmation/${confirmCode}\n\n`
         + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
     });
-    console.log(userNotification);
+
     if (userNotification) {
       await DeviceNotification.create({
         deviceUuid: userNotification,
         userId: user.id,
       });
-
-      const myClient = new OneSignal.Client({
-        userAuthKey: process.env.ONESIGNAL_USER_AUTH_KEY,
-        // note that "app" must have "appAuthKey" and "appId" keys
-        app: {
-          appAuthKey: process.env.ONESIGNAL_APP_AUTH_KEY,
-          appId: '861ffbdb-a413-413d-a0e9-dc4ff86072f9',
-        },
-      });
-
-      const notification = new OneSignal.Notification({
-        contents: {
-          en: 'Welcome',
-          pt: 'Bem-vindo',
-        },
-        include_player_ids: [`${userNotification}`],
-      });
-
-      myClient.sendNotification(notification);
     }
 
     return res.status(201).send({ token });
