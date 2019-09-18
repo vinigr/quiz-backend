@@ -57,7 +57,7 @@ const signUp = async (req, res) => {
     const confirmCode = Helper.generateConfirmationToken(user.id);
 
     nodemailerMailgun.sendMail({
-      from: '<queston@app.com>',
+      from: 'Quest On App <queston@app.com>',
       to: `<${userLocal.email}>`,
       subject: `Bem vindo ${user.name}`,
       text:
