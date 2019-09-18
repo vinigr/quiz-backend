@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const mg = require('nodemailer-mailgun-transport');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const addMinutes = require('date-fns/add_minutes');
@@ -6,11 +7,14 @@ const { User, LocalAuth, DeviceNotification } = require('../models');
 const Helper = require('../helper');
 
 const signUp = async (req, res) => {
-  const transport = nodemailer.createTransport({
-    host: process.env.MAILHOG_HOST,
-    port: '1025',
-    auth: null,
-  });
+  const auth = {
+    auth: {
+      api_key: process.env.API_KEY_MAILGUN,
+      domain: process.env.DOMAIN_MAILGUN,
+    },
+  };
+
+  const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 
   const {
     name, email, password, groupUser = 1, userNotification,
@@ -52,14 +56,14 @@ const signUp = async (req, res) => {
     const token = Helper.generateToken(user.id, user.group_user);
     const confirmCode = Helper.generateConfirmationToken(user.id);
 
-    transport.sendMail({
-      from: 'Eu mesmo <vinyirun4@hotmail.com>',
-      to: `${user.name} <${userLocal.email}>`,
+    nodemailerMailgun.sendMail({
+      from: '<queston@app.com>',
+      to: `<${userLocal.email}>`,
       subject: `Bem vindo ${user.name}`,
       text:
         'You are receiving this because you (or someone else) have requested the create a account in we application.\n\n'
         + 'Please click on the following link, or paste this into your browser to complete the process within two days of receiving it:\n\n'
-        + `http://localhost:3000/confirmation/${confirmCode}\n\n`
+        + `http://queston.netlify.com/confirmation/${confirmCode}\n\n`
         + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
     });
 
