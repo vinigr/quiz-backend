@@ -82,9 +82,15 @@ const createQuiz = async (req, res) => {
 
       const playerIncludeNotification = devices.map(device => device.deviceUuid);
 
+      const subject = await Subject.findOne({
+        where: {
+          id: subjectId,
+        },
+        attributes: ['name'],
+      });
+
       const myClient = new OneSignal.Client({
         userAuthKey: process.env.ONESIGNAL_USER_AUTH_KEY,
-        // note that "app" must have "appAuthKey" and "appId" keys
         app: {
           appAuthKey: process.env.ONESIGNAL_APP_AUTH_KEY,
           appId: '861ffbdb-a413-413d-a0e9-dc4ff86072f9',
@@ -92,11 +98,16 @@ const createQuiz = async (req, res) => {
       });
 
       const notification = new OneSignal.Notification({
+        headings: {
+          en: `${subject.name}`,
+          pt: `${subject.name}`,
+        },
         contents: {
-          en: 'New quiz',
-          pt: 'Novo quiz',
+          en: `New quiz: ${quiz.name}`,
+          pt: `Novo quiz: ${quiz.name}`,
         },
         include_player_ids: playerIncludeNotification,
+        send_after: releasedAt > new Date().toISOString() ? releasedAt : null,
       });
 
       myClient.sendNotification(notification);
@@ -104,7 +115,6 @@ const createQuiz = async (req, res) => {
 
     return res.status(201).send(quiz);
   } catch (error) {
-    console.log(error);
     return res.status(400).send({ message: error });
   }
 };
