@@ -294,13 +294,12 @@ const logout = async (req, res) => {
       },
     });
 
-    if (!device) return res.status(403).send({ message: 'Dispositivo não encontrado!' });
+    if (!device) return res.status(200).send();
 
     device.destroy();
 
     return res.status(200).send();
   } catch (error) {
-    console.log(error);
     return res.status(400).send({ message: error });
   }
 };
