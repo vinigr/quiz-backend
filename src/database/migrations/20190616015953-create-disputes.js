@@ -15,10 +15,18 @@ module.exports = {
       },
     },
     user_id: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.INTEGER,
       references: {
         model: 'users',
+        key: 'id',
+      },
+    },
+    unlogged_user_id: {
+      allowNull: true,
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'unlogged_users',
         key: 'id',
       },
     },
@@ -39,7 +47,6 @@ module.exports = {
       type: DataTypes.DATE,
     },
   }),
-
 
   down: queryInterface => queryInterface.dropTable('disputes'),
 };
