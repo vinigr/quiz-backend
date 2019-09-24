@@ -89,6 +89,8 @@ router
   .post('/disputesList', [verifyHelper.verifyToken], quiz.allDisputesPlayer)
   .get('/result/:id', [verifyHelper.verifyToken], quiz.statusDisputePlayer);
 
-router.get('/unloggedUser/:code', quiz.find);
+router
+  .get('/unloggedUser/:code', quiz.find)
+  .post('/unloggedUser/startQuiz', quiz.startQuizUnlogged);
 
 module.exports = router;

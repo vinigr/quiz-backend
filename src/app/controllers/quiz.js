@@ -12,6 +12,7 @@ const {
   Dispute,
   UserQuestion,
   DeviceNotification,
+  UnloggedUser,
 } = require('../models');
 
 const Helper = require('../helper');
@@ -568,6 +569,46 @@ const find = async (req, res) => {
   }
 };
 
+const startQuizUnlogged = async (req, res) => {
+  const { quiz, name } = req.body;
+
+  if (!quiz) return res.status(400).send({ message: 'Quiz não informado!' });
+  if (!name) return res.status(400).send({ message: 'Nome não informado!' });
+
+  try {
+    const user = await UnloggedUser.create({
+      name,
+    });
+
+    const listQuiz = await QuestionQuiz.findAll({
+      where: { quiz_id: quiz },
+      attributes: { include: ['id'] },
+      include: [
+        {
+          model: TfQuestion,
+          as: 'tfQuestion',
+        },
+        {
+          model: MeQuestion,
+          as: 'meQuestion',
+        },
+      ],
+    });
+
+    const dispute = await Dispute.create({
+      quizId: quiz,
+      unloggedUserId: user.id,
+      status: 'started',
+      score: 0,
+    });
+
+    return res.status(201).send({ listQuiz, dispute });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({ message: error });
+  }
+};
+
 module.exports = {
   createQuiz,
   find,
@@ -580,4 +621,5 @@ module.exports = {
   quizStatus,
   allDisputesPlayer,
   statusDisputePlayer,
+  startQuizUnlogged,
 };
