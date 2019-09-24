@@ -14,6 +14,8 @@ const {
   DeviceNotification,
 } = require('../models');
 
+const Helper = require('../helper');
+
 const createQuiz = async (req, res) => {
   const {
     name,
@@ -23,6 +25,7 @@ const createQuiz = async (req, res) => {
     selectedQuestionsTF,
     feedbackAnswer,
     subjectId,
+    hasCode,
   } = req.body;
 
   let expirationAt = null;
@@ -35,6 +38,12 @@ const createQuiz = async (req, res) => {
     expirationAt = new Date(expirationDate).toISOString();
   }
 
+  let accessCode = null;
+
+  if (hasCode) {
+    accessCode = Helper.accessCodeGererate();
+  }
+
   const questions = [];
 
   try {
@@ -45,6 +54,7 @@ const createQuiz = async (req, res) => {
       expirationAt,
       feedbackAnswer,
       blocked: false,
+      accessCode,
     });
 
     selectedQuestionsME.map(question => questions.push({
@@ -537,8 +547,30 @@ const statusDisputePlayer = async (req, res) => {
   }
 };
 
+const find = async (req, res) => {
+  const { code } = req.params;
+  if (!code) return res.status(400).send({ message: 'Some values are missing' });
+
+  try {
+    const quiz = await Quiz.findOne({
+      where: {
+        accessCode: {
+          [Op.like]: `%${code}%`,
+        },
+      },
+    });
+
+    if (!quiz) return res.status(400).send({ message: 'Código inválido' });
+
+    return res.status(201).send({ quiz: quiz.id });
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+};
+
 module.exports = {
   createQuiz,
+  find,
   subjectsQuizList,
   allQuizTeacher,
   questionsInQuiz,
