@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const mg = require('nodemailer-mailgun-transport');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const addMinutes = require('date-fns/add_minutes');
@@ -7,14 +6,15 @@ const { User, LocalAuth, DeviceNotification } = require('../models');
 const Helper = require('../helper');
 
 const signUp = async (req, res) => {
-  const auth = {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.googlemail.com',
+    port: 465,
+    secure: true,
     auth: {
-      api_key: process.env.API_KEY_MAILGUN,
-      domain: process.env.DOMAIN_MAILGUN,
+      user: process.env.EMAIL_SEND_EMAIL,
+      pass: process.env.PASSWORD_SEND_EMAIL,
     },
-  };
-
-  const nodemailerMailgun = nodemailer.createTransport(mg(auth));
+  });
 
   const {
     name, email, password, groupUser = 1, userNotification,
@@ -56,15 +56,15 @@ const signUp = async (req, res) => {
     const token = Helper.generateToken(user.id, user.group_user);
     const confirmCode = Helper.generateConfirmationToken(user.id);
 
-    nodemailerMailgun.sendMail({
-      from: 'Quest On App <queston@app.com>',
+    transporter.sendMail({
+      from: '"Quest On"',
       to: `<${userLocal.email}>`,
       subject: `Bem vindo ${user.name}`,
       text:
-        'You are receiving this because you (or someone else) have requested the create a account in we application.\n\n'
-        + 'Please click on the following link, or paste this into your browser to complete the process within two days of receiving it:\n\n'
+        'Você está recebendo isso porque você (ou outra pessoa) solicitou a criação de uma conta no nosso aplicativo.\n\n'
+        + 'Clique no link a seguir ou cole-o no seu navegador para concluir o processo dentro de dois dias após o recebimento:\n\n'
         + `http://queston.netlify.com/confirmation/${confirmCode}\n\n`
-        + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+        + 'Se você não solicitou isso, ignore este e-mail.\n',
     });
 
     if (userNotification) {
@@ -83,22 +83,23 @@ const signUp = async (req, res) => {
 const confirmAccount = async (req, res) => {
   const { token } = req.params;
 
-  const userConfirm = Helper.verifyConfirmation(token);
+  const userConfirm = await Helper.verifyConfirmation(token);
 
-  if (!userConfirm) return res.status(400).send({ message: 'Invalid confirmation code' });
+  if (!userConfirm) return res.status(400).send({ message: 'Código de confirmação inválido ou expirado!' });
 
   try {
     const user = await User.findByPk(userConfirm);
 
-    if (!user) return res.status(403).send({ message: 'User not found' });
+    if (!user) return res.status(403).send({ message: 'Usuário não encontrado!' });
 
-    if (user.active === true) return res.status(400).send({ message: 'Account has already been confirmed previously' });
-
+    if (user.active === true) {
+      return res.status(201).json({ message: 'Você já ativou sua conta anteriormente' });
+    }
     await user.update({
       active: true,
     });
 
-    return res.status(201).json({ message: 'user' });
+    return res.status(201).json();
   } catch (error) {
     return res.status(400).send(error);
   }
