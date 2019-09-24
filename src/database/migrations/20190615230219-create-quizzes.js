@@ -18,6 +18,11 @@ module.exports = {
         key: 'id',
       },
     },
+    access_code: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+      unique: true,
+    },
     blocked: {
       allowNull: false,
       defaultValue: false,
@@ -45,7 +50,6 @@ module.exports = {
       type: DataTypes.DATE,
     },
   }),
-
 
   down: queryInterface => queryInterface.dropTable('quizzes'),
 };
