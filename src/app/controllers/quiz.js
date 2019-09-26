@@ -140,12 +140,29 @@ const subjectsQuizList = async (req, res) => {
       where: { subjectId: id },
     });
 
+    let disputes;
+    if (listQuiz.length > 0) {
+      const quizIds = listQuiz.map(quiz => quiz.id);
+
+      const disputesList = await Dispute.findAll({
+        where: {
+          quizId: {
+            [Op.or]: quizIds,
+          },
+          userId: req.userId,
+        },
+        attributes: ['quizId'],
+      });
+
+      disputes = disputesList.map(dispute => dispute.quizId);
+    }
+
     const available = listQuiz.filter(item => item.expirationAt > new Date() || !item.expirationAt);
     const notAvailable = listQuiz.filter(
       item => item.expirationAt < new Date() && item.expirationAt,
     );
 
-    return res.status(201).send({ available, notAvailable });
+    return res.status(201).send({ available, notAvailable, disputes });
   } catch (error) {
     return res.status(400).send({ message: error });
   }
@@ -499,10 +516,16 @@ const statusDisputePlayer = async (req, res) => {
       where: {
         quizId: id,
       },
-      include: {
-        model: User,
-        attributes: ['id', 'name'],
-      },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: UnloggedUser,
+          attributes: ['name'],
+        },
+      ],
       attributes: { include: ['id'] },
       order: [['score', 'DESC']],
     });
