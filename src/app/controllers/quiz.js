@@ -497,7 +497,7 @@ const allDisputesPlayer = async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
 
-    if (!disputes || disputes.length === 0) return res.status(400).send({ message: 'Nenhum quiz disputado!' });
+    if (!disputes || disputes.length === 0) return res.status(200).send({ message: 'Nenhum quiz disputado!' });
 
     return res.status(201).send({
       disputes,
