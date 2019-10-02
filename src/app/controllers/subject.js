@@ -190,6 +190,27 @@ const disableSubjects = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  const { name, topic, id } = req.body;
+  if (!name || !topic || !id) return res.status(400).send({ message: 'Some values are missing' });
+
+  try {
+    await Subject.update(
+      {
+        name,
+        topic,
+      },
+      {
+        where: { id },
+      },
+    );
+    return res.status(201).send();
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send(error);
+  }
+};
+
 module.exports = {
   create,
   find,
@@ -198,4 +219,5 @@ module.exports = {
   usersInSubject,
   subjectsTeacher,
   disableSubjects,
+  update,
 };

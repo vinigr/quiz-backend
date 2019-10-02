@@ -35,7 +35,8 @@ router
     '/subject/:id',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
     subject.disableSubjects,
-  );
+  )
+  .put('/subject/update', [verifyHelper.verifyToken, verifyHelper.isTeacher], subject.update);
 
 router
   .get('/user/subjects', [verifyHelper.verifyToken], userSubject.userSubjects)
