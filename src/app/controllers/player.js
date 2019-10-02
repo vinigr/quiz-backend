@@ -68,6 +68,14 @@ const signUp = async (req, res) => {
     });
 
     if (userNotification) {
+      const device = await DeviceNotification.findOne({
+        deviceUuid: userNotification,
+      });
+  
+      if (device) {
+        device.destroy();
+      }
+
       await DeviceNotification.create({
         deviceUuid: userNotification,
         userId: user.id,
@@ -106,7 +114,7 @@ const confirmAccount = async (req, res) => {
 };
 
 const signIn = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, userNotification } = req.body;
 
   if (!email) return res.status(400).send({ message: 'Email não informado!' });
 
@@ -129,6 +137,22 @@ const signIn = async (req, res) => {
   const user = await User.findOne({ where: { local_auth: userLocal.id } });
 
   const token = Helper.generateToken(user.id, user.group_user);
+
+  if (userNotification) {
+    const device = await DeviceNotification.findOne({
+      deviceUuid: userNotification,
+    });
+
+    if (device) {
+      device.destroy();
+    }
+
+    await DeviceNotification.create({
+      deviceUuid: userNotification,
+      userId: user.id,
+    });
+  }
+
   return res.status(201).send({ token });
 };
 
