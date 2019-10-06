@@ -32,20 +32,27 @@ const Helper = {
    * @param {string} id
    * @returns {string} token
    */
-  generateToken(id, userGroup) {
-    const token = jwt.sign({
-      userId: id,
-      role: userGroup,
-    },
-    process.env.SECRET, { expiresIn: '7d' });
+  generateToken(id, name, userGroup) {
+    const token = jwt.sign(
+      {
+        userId: id,
+        name,
+        role: userGroup,
+      },
+      process.env.SECRET,
+      { expiresIn: '7d' },
+    );
     return token;
   },
 
   generateConfirmationToken(id) {
-    const token = jwt.sign({
-      userId: id,
-    },
-    process.env.COD_CONFIRM, { expiresIn: '2d' });
+    const token = jwt.sign(
+      {
+        userId: id,
+      },
+      process.env.COD_CONFIRM,
+      { expiresIn: '2d' },
+    );
     return token;
   },
 
@@ -62,8 +69,12 @@ const Helper = {
   },
 
   accessCodeGererate() {
-    const math = Math.random().toString(36).substring(2, 6);
-    const math2 = Math.random().toString(36).substring(2, 6);
+    const math = Math.random()
+      .toString(36)
+      .substring(2, 6);
+    const math2 = Math.random()
+      .toString(36)
+      .substring(2, 6);
     const code = (math + math2).toUpperCase();
     return code;
   },

@@ -53,7 +53,7 @@ const signUp = async (req, res) => {
       group_user: groupUser,
     });
 
-    const token = Helper.generateToken(user.id, user.group_user);
+    const token = Helper.generateToken(user.id, user.name, user.group_user);
     const confirmCode = Helper.generateConfirmationToken(user.id);
 
     transporter.sendMail({
@@ -71,7 +71,7 @@ const signUp = async (req, res) => {
       const device = await DeviceNotification.findOne({
         deviceUuid: userNotification,
       });
-  
+
       if (device) {
         device.destroy();
       }
@@ -136,7 +136,7 @@ const signIn = async (req, res) => {
 
   const user = await User.findOne({ where: { local_auth: userLocal.id } });
 
-  const token = Helper.generateToken(user.id, user.group_user);
+  const token = Helper.generateToken(user.id, user.name, user.group_user);
 
   if (userNotification) {
     const device = await DeviceNotification.findOne({
