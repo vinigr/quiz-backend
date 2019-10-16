@@ -256,7 +256,6 @@ const statistics = async (req, res) => {
       ],
       attributes: ['user_id', [fn('sum', col('score')), 'scoreAll']],
       group: ['user_id', 'User.id', 'score'],
-      order: literal('scoreAll DESC'),
     });
 
     return res.status(201).send(disputes);
