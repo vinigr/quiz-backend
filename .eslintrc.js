@@ -1,47 +1,23 @@
 module.exports = {
-  "env": {
-    "commonjs": true,
-    "es6": true,
-    "node": true
+  env: {
+    es6: true,
+    node: true,
   },
-  "extends": "airbnb-base",
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
+  extends: ['airbnb-base', 'prettier'],
+  plugins: ['prettier'],
+  globals: {
+    Atomics: 'readonly',
+    SharedArrayBuffer: 'readonly',
   },
-  "parserOptions": {
-    "ecmaVersion": 2018
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
   },
-  "rules": {
-    'consistent-return': 'off',
-    'no-console': 'off',
-    'import/no-unresolved': 'off',
-    'no-underscore-dangle': 'off',
-    'prefer-promise-reject-errors': 'off',
-    'func-names': 'off',
-    'new-cap': 'off',
-    'no-shadow': 'off',
-    'no-unused-expressions': 'off',
-    'no-return-assign': 'off',
-    'linebreak-style': 'off'
+  rules: {
+    'prettier/prettier': 'error',
+    'class-methods-use-this': 'off',
+    'no-param-reassign': 'off',
+    camelcase: 'off',
+    'no-unused-vars': ['error', { argsIgnorePattern: 'next' }],
   },
-  overrides: [
-    {
-      files: [
-        "**/*.test.js"
-      ],
-      env: {
-        jest: true
-      },
-      // "extends": ["plugin:jest/recommended"],
-      plugins: ["jest"],
-      rules: {
-        "jest/no-disabled-tests": "warn",
-        "jest/no-focused-tests": "error",
-        "jest/no-identical-title": "error",
-        "jest/prefer-to-have-length": "warn",
-        "jest/valid-expect": "error"
-      }
-    }
-  ],
 };
