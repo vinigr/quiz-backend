@@ -140,7 +140,9 @@ const signIn = async (req, res) => {
 
   if (userNotification) {
     const device = await DeviceNotification.findOne({
-      deviceUuid: userNotification,
+      where: {
+        deviceUuid: userNotification,
+      },
     });
 
     if (device) {
