@@ -1,5 +1,13 @@
-const { Op, fn, col, literal } = require('sequelize');
-const { Subject, User, UserSubject, Quiz, Dispute } = require('../models');
+const { Op, fn, col } = require('sequelize');
+const {
+  Subject,
+  User,
+  UserSubject,
+  Quiz,
+  Dispute,
+  QuestionQuiz,
+  UserQuestion,
+} = require('../models');
 const Helper = require('../helper');
 
 const create = async (req, res) => {
@@ -242,7 +250,7 @@ const statistics = async (req, res) => {
 
     const quizzesId = quizzes.length !== 0 && quizzes.map(quiz => quiz.id);
 
-    const disputes = await Dispute.findAll({
+    const tops = await Dispute.findAll({
       where: {
         quizId: {
           [Op.or]: quizzesId,
@@ -255,10 +263,72 @@ const statistics = async (req, res) => {
         },
       ],
       attributes: ['user_id', [fn('sum', col('score')), 'scoreAll']],
-      group: ['user_id', 'User.id', 'score'],
+      group: ['user_id', 'User.id'],
+      order: [[fn('sum', col('score')), 'DESC']],
+      limit: 5,
     });
 
-    return res.status(201).send(disputes);
+    const averageQuizzes = await Dispute.findAll({
+      where: {
+        quizId: {
+          [Op.or]: quizzesId,
+        },
+      },
+      include: [
+        {
+          model: Quiz,
+          attributes: ['name'],
+        },
+      ],
+      attributes: ['quiz_id', [fn('avg', col('score')), 'average']],
+      group: ['quiz_id', 'Quiz.id'],
+    });
+
+    const questions = await QuestionQuiz.findAll({
+      where: {
+        quiz_id: {
+          [Op.or]: quizzesId,
+        },
+      },
+      attributes: ['id'],
+    });
+
+    let answersStats;
+
+    if (questions.length > 0) {
+      const questionsId = questions.map(question => question.id);
+
+      let answers = await UserQuestion.findAll({
+        where: {
+          questionId: {
+            [Op.or]: questionsId,
+          },
+        },
+        attributes: ['result'],
+      });
+
+      answersStats = {
+        hit: 0,
+        error: 0,
+        skip: 0,
+      };
+
+      answers.map(answer => {
+        switch (answer.result) {
+          case 'hit':
+            answersStats.hit++;
+            break;
+          case 'error':
+            answersStats.error++;
+            break;
+          case 'skip':
+            answersStats.skip++;
+            break;
+        }
+      });
+    }
+
+    return res.status(201).send({ tops, averageQuizzes, answersStats });
   } catch (error) {
     console.log(error);
     return res.status(400).send(error);
