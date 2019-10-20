@@ -3,9 +3,7 @@ const { MeQuestion, TfQuestion } = require('../models');
 const createQuestionME = async (req, res) => {
   const { file = null } = req;
 
-  const {
-    question, options, answer, explanation, subjectId,
-  } = req.body;
+  const { question, options, answer, explanation = null, subjectId } = req.body;
 
   if (!question || !options || !answer) {
     return res.status(400).send({ message: 'Questão incompleta!' });
@@ -59,9 +57,7 @@ const questionsMe = async (req, res) => {
 const createQuestionTF = async (req, res) => {
   const { file = null } = req;
 
-  const {
-    question, answer, explanation, subjectId,
-  } = req.body;
+  const { question, answer, explanation = null, subjectId } = req.body;
 
   if (!question || !answer) {
     return res.status(400).send({ message: 'Questão incompleta!' });
@@ -90,7 +86,6 @@ const questionsTf = async (req, res) => {
         user_id: req.userId,
       },
     });
-
 
     return res.status(201).send(questions);
   } catch (error) {
