@@ -31,7 +31,8 @@ const createQuiz = async (req, res) => {
 
   let expirationAt = null;
 
-  if (!new Date(releasedDate).toISOString()) return res.status(400).send({ message: 'Data inválida!' });
+  if (!new Date(releasedDate).toISOString())
+    return res.status(400).send({ message: 'Data inválida!' });
 
   const releasedAt = new Date(releasedDate).toISOString();
 
@@ -58,17 +59,21 @@ const createQuiz = async (req, res) => {
       accessCode,
     });
 
-    selectedQuestionsME.map(question => questions.push({
-      quiz_id: quiz.id,
-      meQuestionId: question,
-      tfQuestionId: null,
-    }));
+    selectedQuestionsME.map(question =>
+      questions.push({
+        quiz_id: quiz.id,
+        meQuestionId: question,
+        tfQuestionId: null,
+      })
+    );
 
-    selectedQuestionsTF.map(question => questions.push({
-      quiz_id: quiz.id,
-      meQuestionId: null,
-      tfQuestionId: question,
-    }));
+    selectedQuestionsTF.map(question =>
+      questions.push({
+        quiz_id: quiz.id,
+        meQuestionId: null,
+        tfQuestionId: question,
+      })
+    );
 
     await QuestionQuiz.bulkCreate(questions);
 
@@ -91,7 +96,9 @@ const createQuiz = async (req, res) => {
         attributes: ['deviceUuid'],
       });
 
-      const playerIncludeNotification = devices.map(device => device.deviceUuid);
+      const playerIncludeNotification = devices.map(
+        device => device.deviceUuid
+      );
 
       const subject = await Subject.findOne({
         where: {
@@ -133,11 +140,17 @@ const createQuiz = async (req, res) => {
 const subjectsQuizList = async (req, res) => {
   const { id } = req.params;
 
-  if (!id) return res.status(400).send({ message: 'Disciplina não informada!' });
+  if (!id)
+    return res.status(400).send({ message: 'Disciplina não informada!' });
 
   try {
     const listQuiz = await Quiz.findAll({
-      where: { subjectId: id },
+      where: {
+        subjectId: id,
+        releasedAt: {
+          [Op.lte]: new Date(),
+        },
+      },
     });
 
     let disputes;
@@ -157,9 +170,11 @@ const subjectsQuizList = async (req, res) => {
       disputes = disputesList.map(dispute => dispute.quizId);
     }
 
-    const available = listQuiz.filter(item => item.expirationAt > new Date() || !item.expirationAt);
+    const available = listQuiz.filter(
+      item => item.expirationAt > new Date() || !item.expirationAt
+    );
     const notAvailable = listQuiz.filter(
-      item => item.expirationAt < new Date() && item.expirationAt,
+      item => item.expirationAt < new Date() && item.expirationAt
     );
 
     return res.status(201).send({ available, notAvailable, disputes });
@@ -194,9 +209,11 @@ const allQuizTeacher = async (req, res) => {
       ],
     });
 
-    const available = listQuiz.filter(item => item.expirationAt > new Date() || !item.expirationAt);
+    const available = listQuiz.filter(
+      item => item.expirationAt > new Date() || !item.expirationAt
+    );
     const notAvailable = listQuiz.filter(
-      item => item.expirationAt < new Date() && item.expirationAt,
+      item => item.expirationAt < new Date() && item.expirationAt
     );
 
     return res.status(201).send({ available, notAvailable });
@@ -242,7 +259,8 @@ const findQuizzes = async (req, res) => {
       },
     });
 
-    if (!subjects || subjects.length === 0) return res.status(400).send({ message: 'Nenhum quiz disponível' });
+    if (!subjects || subjects.length === 0)
+      return res.status(400).send({ message: 'Nenhum quiz disponível' });
 
     const disputes = await Dispute.findAll({
       where: {
@@ -250,8 +268,10 @@ const findQuizzes = async (req, res) => {
       },
     });
 
-    const subjectsRegistered = subjects.length !== 0 ? subjects.map(subject => subject.subject_id) : [];
-    const disputesRegistered = disputes.length !== 0 ? disputes.map(dispute => dispute.quizId) : [];
+    const subjectsRegistered =
+      subjects.length !== 0 ? subjects.map(subject => subject.subject_id) : [];
+    const disputesRegistered =
+      disputes.length !== 0 ? disputes.map(dispute => dispute.quizId) : [];
 
     const listQuiz = await Quiz.findAll({
       where: {
@@ -260,6 +280,9 @@ const findQuizzes = async (req, res) => {
         },
         subjectId: {
           [Op.or]: subjectsRegistered,
+        },
+        releasedAt: {
+          [Op.lte]: new Date(),
         },
       },
       include: [
@@ -271,12 +294,15 @@ const findQuizzes = async (req, res) => {
     });
 
     const listNext = listQuiz.filter(
-      item => differenceInHours(item.expirationAt, new Date()) > 0
-        && differenceInHours(item.expirationAt, new Date()) <= 168,
+      item =>
+        differenceInHours(item.expirationAt, new Date()) > 0 &&
+        differenceInHours(item.expirationAt, new Date()) <= 168
     );
 
     const listOthers = listQuiz.filter(
-      item => differenceInHours(item.expirationAt, new Date()) > 168 || !item.expirationAt,
+      item =>
+        differenceInHours(item.expirationAt, new Date()) > 168 ||
+        !item.expirationAt
     );
 
     return res.status(200).send({ listNext, listOthers });
@@ -298,7 +324,8 @@ const startQuiz = async (req, res) => {
       },
     });
 
-    if (existsDispute) return res.status(400).send({ message: 'Este quiz já foi disputado!' });
+    if (existsDispute)
+      return res.status(400).send({ message: 'Este quiz já foi disputado!' });
 
     const listQuiz = await QuestionQuiz.findAll({
       where: { quiz_id: id },
@@ -331,11 +358,14 @@ const startQuiz = async (req, res) => {
 const answerQuestion = async (req, res) => {
   const { disputeId, questionId, answer } = req.body;
 
-  if (!disputeId) return res.status(400).send({ message: 'Quiz não informado!' });
+  if (!disputeId)
+    return res.status(400).send({ message: 'Quiz não informado!' });
 
-  if (!questionId) return res.status(400).send({ message: 'Questão não informada!' });
+  if (!questionId)
+    return res.status(400).send({ message: 'Questão não informada!' });
 
-  if (answer === null || answer === undefined) return res.status(400).send({ message: 'Resposta não informada!' });
+  if (answer === null || answer === undefined)
+    return res.status(400).send({ message: 'Resposta não informada!' });
 
   try {
     const userQuestion = await UserQuestion.findOne({
@@ -380,11 +410,15 @@ const answerQuestion = async (req, res) => {
 
     let result;
     if (question.tfQuestion) {
-      question.tfQuestion.answer === answer ? (result = 'hit') : (result = 'error');
+      question.tfQuestion.answer === answer
+        ? (result = 'hit')
+        : (result = 'error');
     }
 
     if (question.meQuestion) {
-      question.meQuestion.answer === answer ? (result = 'hit') : (result = 'error');
+      question.meQuestion.answer === answer
+        ? (result = 'hit')
+        : (result = 'error');
     }
 
     if (result === 'hit') {
@@ -394,7 +428,7 @@ const answerQuestion = async (req, res) => {
         },
         {
           where: { id: disputeId },
-        },
+        }
       );
     }
 
@@ -405,7 +439,7 @@ const answerQuestion = async (req, res) => {
         },
         {
           where: { id: disputeId },
-        },
+        }
       );
     }
 
@@ -497,7 +531,8 @@ const allDisputesPlayer = async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
 
-    if (!disputes || disputes.length === 0) return res.status(200).send({ message: 'Nenhum quiz disputado!' });
+    if (!disputes || disputes.length === 0)
+      return res.status(200).send({ message: 'Nenhum quiz disputado!' });
 
     return res.status(201).send({
       disputes,
@@ -530,7 +565,8 @@ const statusDisputePlayer = async (req, res) => {
       order: [['score', 'DESC']],
     });
 
-    if (!disputes || disputes.length === 0) return res.status(400).send({ message: 'Nenhum quiz disputado!' });
+    if (!disputes || disputes.length === 0)
+      return res.status(400).send({ message: 'Nenhum quiz disputado!' });
 
     const questions = await QuestionQuiz.findAll({
       where: {
@@ -573,7 +609,8 @@ const statusDisputePlayer = async (req, res) => {
 
 const find = async (req, res) => {
   const { code } = req.params;
-  if (!code) return res.status(400).send({ message: 'Some values are missing' });
+  if (!code)
+    return res.status(400).send({ message: 'Some values are missing' });
 
   try {
     const quiz = await Quiz.findOne({
