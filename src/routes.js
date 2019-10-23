@@ -14,11 +14,7 @@ router
   .post('/signin', player.signIn)
   .post('/verify', [verifyHelper.verifyTokenMobile])
   .put('/forgotPassword', player.forgotPassword)
-  .put(
-    '/changePassword',
-    [verifyHelper.verifyToken],
-    player.changePassword,
-  )
+  .put('/changePassword', [verifyHelper.verifyToken], player.changePassword)
   .get('/resetPassword/:token', player.resetPassword)
   .put('/updatePassword', player.updatePassword)
   .post('/logout', [verifyHelper.verifyToken], player.logout);
@@ -29,52 +25,44 @@ router
   .post(
     '/subject/create',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    subject.create,
+    subject.create
   )
   .get('/subject/:code', subject.find)
   .post(
     '/subject/registrationUser',
     [verifyHelper.verifyToken],
-    subject.registrationInSubject,
+    subject.registrationInSubject
   )
   .get(
     '/subject/:id/users',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    subject.findUsersInSubject,
+    subject.findUsersInSubject
   )
-  .get(
-    '/subject/users/:id',
-    [verifyHelper.verifyToken],
-    subject.usersInSubject,
-  )
+  .get('/subject/users/:id', [verifyHelper.verifyToken], subject.usersInSubject)
   .delete(
     '/subject/:id',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    subject.disableSubjects,
+    subject.disableSubjects
   )
   .put(
     '/subject/update',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    subject.update,
+    subject.update
   )
   .get('/subject/:id/statistics', subject.statistics);
 
 router
-  .get(
-    '/user/subjects',
-    [verifyHelper.verifyToken],
-    userSubject.userSubjects,
-  )
+  .get('/user/subjects', [verifyHelper.verifyToken], userSubject.userSubjects)
   .delete(
     '/user/unsubscribe/:id',
     [verifyHelper.verifyToken],
-    userSubject.unsubscribe,
+    userSubject.unsubscribe
   );
 
 router.get(
   '/teacher/subjects',
   [verifyHelper.verifyToken, verifyHelper.isTeacher],
-  subject.subjectsTeacher,
+  subject.subjectsTeacher
 );
 
 router
@@ -82,78 +70,72 @@ router
     '/questionMe',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
     parser.single('image'),
-    question.createQuestionME,
+    question.createQuestionME
   )
   .get(
     '/questionMe',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    question.questionsMe,
+    question.questionsMe
   )
   .post(
     '/questionTf',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
     parser.single('image'),
-    question.createQuestionTF,
+    question.createQuestionTF
   )
   .get(
     '/questionTf',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    question.questionsTf,
+    question.questionsTf
   )
   .get(
     '/questionsAll',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    question.questionsAll,
+    question.questionsAll
   )
   .get(
     '/questionsSubject/:id',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    question.allQuestionsSubject,
+    question.allQuestionsSubject
   );
 
 router
   .post(
     '/createQuiz',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    quiz.createQuiz,
+    quiz.createQuiz
   )
   .get(
     '/subjectQuizList/:id',
     [verifyHelper.verifyToken],
-    quiz.subjectsQuizList,
+    quiz.subjectsQuizList
   )
   .get(
     '/allQuizzesTeacher',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    quiz.allQuizTeacher,
+    quiz.allQuizTeacher
   )
   .get(
     '/questionsQuiz/:id',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    quiz.questionsInQuiz,
+    quiz.questionsInQuiz
   )
   .get('/allQuizzes', [verifyHelper.verifyToken], quiz.findQuizzes)
   .post('/startQuiz', [verifyHelper.verifyToken], quiz.startQuiz)
-  .post(
-    '/answerQuestion',
-    [verifyHelper.verifyToken],
-    quiz.answerQuestion,
-  )
+  .post('/answerQuestion', [verifyHelper.verifyToken], quiz.answerQuestion)
   .get(
     '/statusQuiz/:quizId',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
-    quiz.quizStatus,
-  )
-  .post(
-    '/disputesList',
-    [verifyHelper.verifyToken],
-    quiz.allDisputesPlayer,
+    quiz.quizStatus
   )
   .get(
-    '/result/:id',
-    [verifyHelper.verifyToken],
-    quiz.statusDisputePlayer,
-  );
+    '/ranking/:id',
+    [verifyHelper.verifyToken, verifyHelper.isTeacher],
+    quiz.ranking
+  )
+
+  .post('/disputesList', [verifyHelper.verifyToken], quiz.allDisputesPlayer)
+  .get('/result/:id', [verifyHelper.verifyToken], quiz.statusDisputePlayer);
 
 router
   .get('/unloggedUser/:code', quiz.find)
