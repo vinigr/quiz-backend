@@ -1,4 +1,8 @@
-const { Op, fn, col } = require('sequelize');
+const {
+  Op,
+  fn,
+  col
+} = require('sequelize');
 const OneSignal = require('onesignal-node');
 const differenceInHours = require('date-fns/difference_in_hours');
 const {
@@ -32,7 +36,9 @@ const createQuiz = async (req, res) => {
   let expirationAt = null;
 
   if (!new Date(releasedDate).toISOString())
-    return res.status(400).send({ message: 'Data inválida!' });
+    return res.status(400).send({
+      message: 'Data inválida!',
+    });
 
   const releasedAt = new Date(releasedDate).toISOString();
 
@@ -133,15 +139,21 @@ const createQuiz = async (req, res) => {
 
     return res.status(201).send(quiz);
   } catch (error) {
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const subjectsQuizList = async (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
 
   if (!id)
-    return res.status(400).send({ message: 'Disciplina não informada!' });
+    return res.status(400).send({
+      message: 'Disciplina não informada!',
+    });
 
   try {
     const listQuiz = await Quiz.findAll({
@@ -177,14 +189,22 @@ const subjectsQuizList = async (req, res) => {
       item => item.expirationAt < new Date() && item.expirationAt
     );
 
-    return res.status(201).send({ available, notAvailable, disputes });
+    return res.status(201).send({
+      available,
+      notAvailable,
+      disputes,
+    });
   } catch (error) {
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const allQuizTeacher = async (req, res) => {
-  const { userId } = req;
+  const {
+    userId
+  } = req;
 
   try {
     const subjects = await Subject.findAll({
@@ -201,12 +221,10 @@ const allQuizTeacher = async (req, res) => {
           [Op.or]: subjectsRegistered,
         },
       },
-      include: [
-        {
-          model: Subject,
-          as: 'subject',
-        },
-      ],
+      include: [{
+        model: Subject,
+        as: 'subject',
+      }, ],
     });
 
     const available = listQuiz.filter(
@@ -216,23 +234,36 @@ const allQuizTeacher = async (req, res) => {
       item => item.expirationAt < new Date() && item.expirationAt
     );
 
-    return res.status(201).send({ available, notAvailable });
+    return res.status(201).send({
+      available,
+      notAvailable,
+    });
   } catch (error) {
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const questionsInQuiz = async (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
 
-  if (!id) return res.status(400).send({ message: 'Quiz não informado!' });
+  if (!id)
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
 
   try {
     const listQuiz = await QuestionQuiz.findAll({
-      where: { quiz_id: id },
-      attributes: { include: ['id'] },
-      include: [
-        {
+      where: {
+        quiz_id: id,
+      },
+      attributes: {
+        include: ['id'],
+      },
+      include: [{
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -245,12 +276,16 @@ const questionsInQuiz = async (req, res) => {
 
     return res.status(201).send(listQuiz);
   } catch (error) {
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const findQuizzes = async (req, res) => {
-  const { userId } = req;
+  const {
+    userId
+  } = req;
 
   try {
     const subjects = await UserSubject.findAll({
@@ -260,7 +295,9 @@ const findQuizzes = async (req, res) => {
     });
 
     if (!subjects || subjects.length === 0)
-      return res.status(400).send({ message: 'Nenhum quiz disponível' });
+      return res.status(400).send({
+        message: 'Nenhum quiz disponível',
+      });
 
     const disputes = await Dispute.findAll({
       where: {
@@ -285,36 +322,44 @@ const findQuizzes = async (req, res) => {
           [Op.lte]: new Date(),
         },
       },
-      include: [
-        {
-          model: Subject,
-          as: 'subject',
-        },
-      ],
+      include: [{
+        model: Subject,
+        as: 'subject',
+      }, ],
     });
 
     const listNext = listQuiz.filter(
       item =>
-        differenceInHours(item.expirationAt, new Date()) > 0 &&
-        differenceInHours(item.expirationAt, new Date()) <= 168
+      differenceInHours(item.expirationAt, new Date()) > 0 &&
+      differenceInHours(item.expirationAt, new Date()) <= 168
     );
 
     const listOthers = listQuiz.filter(
       item =>
-        differenceInHours(item.expirationAt, new Date()) > 168 ||
-        !item.expirationAt
+      differenceInHours(item.expirationAt, new Date()) > 168 ||
+      !item.expirationAt
     );
 
-    return res.status(200).send({ listNext, listOthers });
+    return res.status(200).send({
+      listNext,
+      listOthers,
+    });
   } catch (error) {
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const startQuiz = async (req, res) => {
-  const { id } = req.body;
+  const {
+    id
+  } = req.body;
 
-  if (!id) return res.status(400).send({ message: 'Quiz não informado!' });
+  if (!id)
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
 
   try {
     const existsDispute = await Dispute.findOne({
@@ -325,13 +370,18 @@ const startQuiz = async (req, res) => {
     });
 
     if (existsDispute)
-      return res.status(400).send({ message: 'Este quiz já foi disputado!' });
+      return res.status(400).send({
+        message: 'Este quiz já foi disputado!',
+      });
 
     const listQuiz = await QuestionQuiz.findAll({
-      where: { quiz_id: id },
-      attributes: { include: ['id'] },
-      include: [
-        {
+      where: {
+        quiz_id: id,
+      },
+      attributes: {
+        include: ['id'],
+      },
+      include: [{
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -342,32 +392,63 @@ const startQuiz = async (req, res) => {
       ],
     });
 
-    const dispute = await Dispute.create({
+    const disputeCreated = await Dispute.create({
       quizId: id,
       userId: req.userId,
       status: 'started',
       score: 0,
     });
 
-    req.io.emit(`quiz${dispute.quizId}`, dispute);
+    const dispute = await Dispute.findOne({
+      where: {
+        id: disputeCreated.id
+      },
+      include: [{
+          model: User,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: UnloggedUser,
+          attributes: ['name'],
+        },
+      ],
+      attributes: ['id', 'score', 'quizId'],
+    });
 
-    return res.status(201).send({ listQuiz, dispute });
+    req.io.emit(`quiz${id}`, dispute);
+
+    return res.status(201).send({
+      listQuiz,
+      dispute,
+    });
   } catch (error) {
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const answerQuestion = async (req, res) => {
-  const { disputeId, questionId, answer } = req.body;
+  const {
+    disputeId,
+    questionId,
+    answer
+  } = req.body;
 
   if (!disputeId)
-    return res.status(400).send({ message: 'Quiz não informado!' });
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
 
   if (!questionId)
-    return res.status(400).send({ message: 'Questão não informada!' });
+    return res.status(400).send({
+      message: 'Questão não informada!',
+    });
 
   if (answer === null || answer === undefined)
-    return res.status(400).send({ message: 'Resposta não informada!' });
+    return res.status(400).send({
+      message: 'Resposta não informada!',
+    });
 
   try {
     const userQuestion = await UserQuestion.findOne({
@@ -378,13 +459,16 @@ const answerQuestion = async (req, res) => {
     });
 
     if (userQuestion) {
-      return res.status(400).send({ message: 'Questão já respondida!' });
+      return res.status(400).send({
+        message: 'Questão já respondida!',
+      });
     }
 
     const question = await QuestionQuiz.findOne({
-      where: { id: questionId },
-      include: [
-        {
+      where: {
+        id: questionId,
+      },
+      include: [{
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -395,9 +479,9 @@ const answerQuestion = async (req, res) => {
       ],
     });
 
-    const answerCurrent = question.meQuestion
-      ? question.meQuestion.answer
-      : question.tfQuestion.answer;
+    const answerCurrent = question.meQuestion ?
+      question.meQuestion.answer :
+      question.tfQuestion.answer;
 
     if (answer === 'skip') {
       await UserQuestion.create({
@@ -407,51 +491,51 @@ const answerQuestion = async (req, res) => {
         result: 'skip',
       });
 
-      return res.status(201).send({ answer: answerCurrent });
+      return res.status(201).send({
+        answer: answerCurrent,
+      });
     }
 
     let result;
     if (question.tfQuestion) {
-      question.tfQuestion.answer === answer
-        ? (result = 'hit')
-        : (result = 'error');
+      question.tfQuestion.answer === answer ?
+        (result = 'hit') :
+        (result = 'error');
     }
 
     if (question.meQuestion) {
-      question.meQuestion.answer === answer
-        ? (result = 'hit')
-        : (result = 'error');
+      question.meQuestion.answer === answer ?
+        (result = 'hit') :
+        (result = 'error');
     }
 
     if (result === 'hit') {
-      await Dispute.increment(
-        {
-          score: 1,
+      await Dispute.increment({
+        score: 1,
+      }, {
+        where: {
+          id: disputeId,
         },
-        {
-          where: { id: disputeId },
-        }
-      );
+      });
     }
 
     if (result === 'error') {
-      await Dispute.decrement(
-        {
-          score: 1,
-        },
-        {
-          where: {
-            id: disputeId,
-            score: {
-              [Op.gt]: 0,
-            },
+      await Dispute.decrement({
+        score: 1,
+      }, {
+        where: {
+          id: disputeId,
+          score: {
+            [Op.gt]: 0,
           },
-        }
-      );
+        },
+      });
     }
 
     const dispute = await Dispute.findOne({
-      where: { id: disputeId },
+      where: {
+        id: disputeId,
+      },
       attributes: ['id', 'score', 'quizId'],
     });
 
@@ -464,16 +548,25 @@ const answerQuestion = async (req, res) => {
       result,
     });
 
-    return res.status(201).send({ answer: answerCurrent });
+    return res.status(201).send({
+      answer: answerCurrent,
+    });
   } catch (error) {
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const quizStatus = async (req, res) => {
-  const { quizId } = req.params;
+  const {
+    quizId
+  } = req.params;
 
-  if (!quizId) return res.status(400).send({ message: 'Quiz não informado!' });
+  if (!quizId)
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
 
   try {
     const disputes = await Dispute.count({
@@ -486,9 +579,10 @@ const quizStatus = async (req, res) => {
       where: {
         quiz_id: quizId,
       },
-      attributes: { include: ['id'] },
-      include: [
-        {
+      attributes: {
+        include: ['id'],
+      },
+      include: [{
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -523,50 +617,61 @@ const quizStatus = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const allDisputesPlayer = async (req, res) => {
-  const { userId } = req;
+  const {
+    userId
+  } = req;
 
   try {
     const disputes = await Dispute.findAll({
       where: {
         userId,
       },
-      attributes: { include: ['id'] },
-      include: [
-        {
-          model: Quiz,
-          as: 'Quiz',
-        },
+      attributes: {
+        include: ['id'],
+      },
+      include: [{
+        model: Quiz,
+        as: 'Quiz',
+      }, ],
+      order: [
+        ['createdAt', 'DESC']
       ],
-      order: [['createdAt', 'DESC']],
     });
 
     if (!disputes || disputes.length === 0)
-      return res.status(200).send({ message: 'Nenhum quiz disputado!' });
+      return res.status(200).send({
+        message: 'Nenhum quiz disputado!',
+      });
 
     return res.status(201).send({
       disputes,
     });
   } catch (error) {
     console.log(error);
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const statusDisputePlayer = async (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
 
   try {
     const disputes = await Dispute.findAll({
       where: {
         quizId: id,
       },
-      include: [
-        {
+      include: [{
           model: User,
           attributes: ['id', 'name'],
         },
@@ -575,20 +680,27 @@ const statusDisputePlayer = async (req, res) => {
           attributes: ['name'],
         },
       ],
-      attributes: { include: ['id'] },
-      order: [['score', 'DESC']],
+      attributes: {
+        include: ['id'],
+      },
+      order: [
+        ['score', 'DESC']
+      ],
     });
 
     if (!disputes || disputes.length === 0)
-      return res.status(400).send({ message: 'Nenhum quiz disputado!' });
+      return res.status(400).send({
+        message: 'Nenhum quiz disputado!',
+      });
 
     const questions = await QuestionQuiz.findAll({
       where: {
         quiz_id: id,
       },
-      attributes: { include: ['id'] },
-      include: [
-        {
+      attributes: {
+        include: ['id'],
+      },
+      include: [{
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -617,14 +729,20 @@ const statusDisputePlayer = async (req, res) => {
       answers,
     });
   } catch (error) {
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const find = async (req, res) => {
-  const { code } = req.params;
+  const {
+    code
+  } = req.params;
   if (!code)
-    return res.status(400).send({ message: 'Some values are missing' });
+    return res.status(400).send({
+      message: 'Some values are missing',
+    });
 
   try {
     const quiz = await Quiz.findOne({
@@ -635,19 +753,33 @@ const find = async (req, res) => {
       },
     });
 
-    if (!quiz) return res.status(400).send({ message: 'Código inválido' });
+    if (!quiz)
+      return res.status(400).send({
+        message: 'Código inválido',
+      });
 
-    return res.status(201).send({ quiz: quiz.id });
+    return res.status(201).send({
+      quiz: quiz.id,
+    });
   } catch (error) {
     return res.status(400).send(error);
   }
 };
 
 const startQuizUnlogged = async (req, res) => {
-  const { quiz, name } = req.body;
+  const {
+    quiz,
+    name
+  } = req.body;
 
-  if (!quiz) return res.status(400).send({ message: 'Quiz não informado!' });
-  if (!name) return res.status(400).send({ message: 'Nome não informado!' });
+  if (!quiz)
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
+  if (!name)
+    return res.status(400).send({
+      message: 'Nome não informado!',
+    });
 
   try {
     const user = await UnloggedUser.create({
@@ -655,10 +787,13 @@ const startQuizUnlogged = async (req, res) => {
     });
 
     const listQuiz = await QuestionQuiz.findAll({
-      where: { quiz_id: quiz },
-      attributes: { include: ['id'] },
-      include: [
-        {
+      where: {
+        quiz_id: quiz,
+      },
+      attributes: {
+        include: ['id'],
+      },
+      include: [{
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -676,24 +811,35 @@ const startQuizUnlogged = async (req, res) => {
       score: 0,
     });
 
-    return res.status(201).send({ listQuiz, dispute });
+    return res.status(201).send({
+      listQuiz,
+      dispute,
+    });
   } catch (error) {
     console.log(error);
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
 const ranking = async (req, res) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
 
-  if (!id) return res.status(400).send({ message: 'Quiz não informado!' });
+  if (!id)
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
 
   try {
     const disputes = await Dispute.findAll({
-      where: { quizId: id },
+      where: {
+        quizId: id,
+      },
       attributes: ['id', 'score'],
-      include: [
-        {
+      include: [{
           model: User,
           attributes: ['id', 'name'],
         },
@@ -706,8 +852,9 @@ const ranking = async (req, res) => {
 
     return res.status(201).send(disputes);
   } catch (error) {
-    console.log(error);
-    return res.status(400).send({ message: error });
+    return res.status(400).send({
+      message: error,
+    });
   }
 };
 
