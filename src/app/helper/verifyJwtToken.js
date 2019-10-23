@@ -8,7 +8,8 @@ const verifyHelper = {
 
     if (!token) {
       return res.status(403).send({
-        auth: false, message: 'No token provided.',
+        auth: false,
+        message: 'No token provided.',
       });
     }
 
@@ -28,7 +29,8 @@ const verifyHelper = {
     const { token } = req.body;
     if (!token) {
       return res.status(403).send({
-        auth: false, message: 'No token provided.',
+        auth: false,
+        message: 'No token provided.',
       });
     }
 
@@ -48,18 +50,21 @@ const verifyHelper = {
     try {
       const user = await User.findOne({
         where: { id: req.userId },
-        include: [{
-          model: GroupUser,
-          as: 'group',
-          where: {
-            name: {
-              [Op.or]: ['Teacher', 'Admin'],
+        include: [
+          {
+            model: GroupUser,
+            as: 'group',
+            where: {
+              name: {
+                [Op.or]: ['Teacher', 'Admin'],
+              },
             },
           },
-        }],
+        ],
       });
 
-      if (!user) return res.status(403).send({ message: 'Require Teacher Role!' });
+      if (!user)
+        return res.status(403).send({ message: 'Require Teacher Role!' });
       next();
     } catch (error) {
       return res.status(400).send(error);
@@ -73,7 +78,8 @@ const verifyHelper = {
         include: [{ model: GroupUser, as: 'group', where: { name: 'Admin' } }],
       });
 
-      if (!user) return res.status(403).send({ message: 'Require Teacher Role!' });
+      if (!user)
+        return res.status(403).send({ message: 'Require Teacher Role!' });
       next();
     } catch (error) {
       return res.status(400).send(error);
