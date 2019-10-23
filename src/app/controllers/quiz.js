@@ -349,6 +349,8 @@ const startQuiz = async (req, res) => {
       score: 0,
     });
 
+    req.io.emit(`quiz${dispute.quizId}`, dispute);
+
     return res.status(201).send({ listQuiz, dispute });
   } catch (error) {
     return res.status(400).send({ message: error });
@@ -438,10 +440,22 @@ const answerQuestion = async (req, res) => {
           score: 1,
         },
         {
-          where: { id: disputeId },
+          where: {
+            id: disputeId,
+            score: {
+              [Op.gt]: 0,
+            },
+          },
         }
       );
     }
+
+    const dispute = await Dispute.findOne({
+      where: { id: disputeId },
+      attributes: ['id', 'score', 'quizId'],
+    });
+
+    req.io.emit(`quiz${dispute.quizId}`, dispute);
 
     await UserQuestion.create({
       questionId,
@@ -669,6 +683,34 @@ const startQuizUnlogged = async (req, res) => {
   }
 };
 
+const ranking = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) return res.status(400).send({ message: 'Quiz não informado!' });
+
+  try {
+    const disputes = await Dispute.findAll({
+      where: { quizId: id },
+      attributes: ['id', 'score'],
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: UnloggedUser,
+          attributes: ['name'],
+        },
+      ],
+    });
+
+    return res.status(201).send(disputes);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({ message: error });
+  }
+};
+
 module.exports = {
   createQuiz,
   find,
@@ -682,4 +724,5 @@ module.exports = {
   allDisputesPlayer,
   statusDisputePlayer,
   startQuizUnlogged,
+  ranking,
 };
