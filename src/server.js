@@ -16,9 +16,12 @@ const boot = () => {
   });
 };
 
-sequelize.authenticate().then(() => {
-  console.log('Banco conectado!');
-  boot();
-}).catch((err) => {
-  console.log(`Erro ao conectar banco ${err}`);
-});
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Banco conectado!');
+    boot();
+  })
+  .catch(err => {
+    console.log(`Erro ao conectar banco ${err}`);
+  });
