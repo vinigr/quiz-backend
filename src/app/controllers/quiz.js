@@ -1,8 +1,4 @@
-const {
-  Op,
-  fn,
-  col
-} = require('sequelize');
+const { Op, fn, col } = require('sequelize');
 const OneSignal = require('onesignal-node');
 const differenceInHours = require('date-fns/difference_in_hours');
 const {
@@ -146,9 +142,7 @@ const createQuiz = async (req, res) => {
 };
 
 const subjectsQuizList = async (req, res) => {
-  const {
-    id
-  } = req.params;
+  const { id } = req.params;
 
   if (!id)
     return res.status(400).send({
@@ -202,9 +196,7 @@ const subjectsQuizList = async (req, res) => {
 };
 
 const allQuizTeacher = async (req, res) => {
-  const {
-    userId
-  } = req;
+  const { userId } = req;
 
   try {
     const subjects = await Subject.findAll({
@@ -221,10 +213,12 @@ const allQuizTeacher = async (req, res) => {
           [Op.or]: subjectsRegistered,
         },
       },
-      include: [{
-        model: Subject,
-        as: 'subject',
-      }, ],
+      include: [
+        {
+          model: Subject,
+          as: 'subject',
+        },
+      ],
     });
 
     const available = listQuiz.filter(
@@ -246,9 +240,7 @@ const allQuizTeacher = async (req, res) => {
 };
 
 const questionsInQuiz = async (req, res) => {
-  const {
-    id
-  } = req.params;
+  const { id } = req.params;
 
   if (!id)
     return res.status(400).send({
@@ -263,7 +255,8 @@ const questionsInQuiz = async (req, res) => {
       attributes: {
         include: ['id'],
       },
-      include: [{
+      include: [
+        {
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -283,9 +276,7 @@ const questionsInQuiz = async (req, res) => {
 };
 
 const findQuizzes = async (req, res) => {
-  const {
-    userId
-  } = req;
+  const { userId } = req;
 
   try {
     const subjects = await UserSubject.findAll({
@@ -322,22 +313,24 @@ const findQuizzes = async (req, res) => {
           [Op.lte]: new Date(),
         },
       },
-      include: [{
-        model: Subject,
-        as: 'subject',
-      }, ],
+      include: [
+        {
+          model: Subject,
+          as: 'subject',
+        },
+      ],
     });
 
     const listNext = listQuiz.filter(
       item =>
-      differenceInHours(item.expirationAt, new Date()) > 0 &&
-      differenceInHours(item.expirationAt, new Date()) <= 168
+        differenceInHours(item.expirationAt, new Date()) > 0 &&
+        differenceInHours(item.expirationAt, new Date()) <= 168
     );
 
     const listOthers = listQuiz.filter(
       item =>
-      differenceInHours(item.expirationAt, new Date()) > 168 ||
-      !item.expirationAt
+        differenceInHours(item.expirationAt, new Date()) > 168 ||
+        !item.expirationAt
     );
 
     return res.status(200).send({
@@ -352,9 +345,7 @@ const findQuizzes = async (req, res) => {
 };
 
 const startQuiz = async (req, res) => {
-  const {
-    id
-  } = req.body;
+  const { id } = req.body;
 
   if (!id)
     return res.status(400).send({
@@ -381,7 +372,8 @@ const startQuiz = async (req, res) => {
       attributes: {
         include: ['id'],
       },
-      include: [{
+      include: [
+        {
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -401,9 +393,10 @@ const startQuiz = async (req, res) => {
 
     const dispute = await Dispute.findOne({
       where: {
-        id: disputeCreated.id
+        id: disputeCreated.id,
       },
-      include: [{
+      include: [
+        {
           model: User,
           attributes: ['id', 'name'],
         },
@@ -429,11 +422,7 @@ const startQuiz = async (req, res) => {
 };
 
 const answerQuestion = async (req, res) => {
-  const {
-    disputeId,
-    questionId,
-    answer
-  } = req.body;
+  const { disputeId, questionId, answer } = req.body;
 
   if (!disputeId)
     return res.status(400).send({
@@ -468,7 +457,8 @@ const answerQuestion = async (req, res) => {
       where: {
         id: questionId,
       },
-      include: [{
+      include: [
+        {
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -479,9 +469,9 @@ const answerQuestion = async (req, res) => {
       ],
     });
 
-    const answerCurrent = question.meQuestion ?
-      question.meQuestion.answer :
-      question.tfQuestion.answer;
+    const answerCurrent = question.meQuestion
+      ? question.meQuestion.answer
+      : question.tfQuestion.answer;
 
     if (answer === 'skip') {
       await UserQuestion.create({
@@ -498,38 +488,44 @@ const answerQuestion = async (req, res) => {
 
     let result;
     if (question.tfQuestion) {
-      question.tfQuestion.answer === answer ?
-        (result = 'hit') :
-        (result = 'error');
+      question.tfQuestion.answer === answer
+        ? (result = 'hit')
+        : (result = 'error');
     }
 
     if (question.meQuestion) {
-      question.meQuestion.answer === answer ?
-        (result = 'hit') :
-        (result = 'error');
+      question.meQuestion.answer === answer
+        ? (result = 'hit')
+        : (result = 'error');
     }
 
     if (result === 'hit') {
-      await Dispute.increment({
-        score: 1,
-      }, {
-        where: {
-          id: disputeId,
+      await Dispute.increment(
+        {
+          score: 1,
         },
-      });
+        {
+          where: {
+            id: disputeId,
+          },
+        }
+      );
     }
 
     if (result === 'error') {
-      await Dispute.decrement({
-        score: 1,
-      }, {
-        where: {
-          id: disputeId,
-          score: {
-            [Op.gt]: 0,
-          },
+      await Dispute.decrement(
+        {
+          score: 1,
         },
-      });
+        {
+          where: {
+            id: disputeId,
+            score: {
+              [Op.gt]: 0,
+            },
+          },
+        }
+      );
     }
 
     const dispute = await Dispute.findOne({
@@ -559,9 +555,7 @@ const answerQuestion = async (req, res) => {
 };
 
 const quizStatus = async (req, res) => {
-  const {
-    quizId
-  } = req.params;
+  const { quizId } = req.params;
 
   if (!quizId)
     return res.status(400).send({
@@ -582,7 +576,8 @@ const quizStatus = async (req, res) => {
       attributes: {
         include: ['id'],
       },
-      include: [{
+      include: [
+        {
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -624,9 +619,7 @@ const quizStatus = async (req, res) => {
 };
 
 const allDisputesPlayer = async (req, res) => {
-  const {
-    userId
-  } = req;
+  const { userId } = req;
 
   try {
     const disputes = await Dispute.findAll({
@@ -636,13 +629,13 @@ const allDisputesPlayer = async (req, res) => {
       attributes: {
         include: ['id'],
       },
-      include: [{
-        model: Quiz,
-        as: 'Quiz',
-      }, ],
-      order: [
-        ['createdAt', 'DESC']
+      include: [
+        {
+          model: Quiz,
+          as: 'Quiz',
+        },
       ],
+      order: [['createdAt', 'DESC']],
     });
 
     if (!disputes || disputes.length === 0)
@@ -662,16 +655,15 @@ const allDisputesPlayer = async (req, res) => {
 };
 
 const statusDisputePlayer = async (req, res) => {
-  const {
-    id
-  } = req.params;
+  const { id } = req.params;
 
   try {
     const disputes = await Dispute.findAll({
       where: {
         quizId: id,
       },
-      include: [{
+      include: [
+        {
           model: User,
           attributes: ['id', 'name'],
         },
@@ -683,9 +675,7 @@ const statusDisputePlayer = async (req, res) => {
       attributes: {
         include: ['id'],
       },
-      order: [
-        ['score', 'DESC']
-      ],
+      order: [['score', 'DESC']],
     });
 
     if (!disputes || disputes.length === 0)
@@ -700,7 +690,8 @@ const statusDisputePlayer = async (req, res) => {
       attributes: {
         include: ['id'],
       },
-      include: [{
+      include: [
+        {
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -736,9 +727,7 @@ const statusDisputePlayer = async (req, res) => {
 };
 
 const find = async (req, res) => {
-  const {
-    code
-  } = req.params;
+  const { code } = req.params;
   if (!code)
     return res.status(400).send({
       message: 'Some values are missing',
@@ -767,10 +756,7 @@ const find = async (req, res) => {
 };
 
 const startQuizUnlogged = async (req, res) => {
-  const {
-    quiz,
-    name
-  } = req.body;
+  const { quiz, name } = req.body;
 
   if (!quiz)
     return res.status(400).send({
@@ -793,7 +779,8 @@ const startQuizUnlogged = async (req, res) => {
       attributes: {
         include: ['id'],
       },
-      include: [{
+      include: [
+        {
           model: TfQuestion,
           as: 'tfQuestion',
         },
@@ -824,9 +811,7 @@ const startQuizUnlogged = async (req, res) => {
 };
 
 const ranking = async (req, res) => {
-  const {
-    id
-  } = req.params;
+  const { id } = req.params;
 
   if (!id)
     return res.status(400).send({
@@ -839,7 +824,8 @@ const ranking = async (req, res) => {
         quizId: id,
       },
       attributes: ['id', 'score'],
-      include: [{
+      include: [
+        {
           model: User,
           attributes: ['id', 'name'],
         },
@@ -852,6 +838,37 @@ const ranking = async (req, res) => {
 
     return res.status(201).send(disputes);
   } catch (error) {
+    return res.status(400).send({
+      message: error,
+    });
+  }
+};
+
+const info = async (req, res) => {
+  const { id } = req.params;
+  console.log('a');
+  if (!id)
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
+
+  try {
+    const quiz = await Quiz.findOne({
+      where: {
+        id,
+      },
+      attributes: ['name'],
+    });
+
+    const questions = await QuestionQuiz.count({
+      where: {
+        quiz_id: id,
+      },
+    });
+
+    return res.status(201).send({ quiz, questions });
+  } catch (error) {
+    console.log(error);
     return res.status(400).send({
       message: error,
     });
@@ -872,4 +889,5 @@ module.exports = {
   statusDisputePlayer,
   startQuizUnlogged,
   ranking,
+  info,
 };

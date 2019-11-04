@@ -133,6 +133,11 @@ router
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
     quiz.ranking
   )
+  .get(
+    '/infoQuiz/:id',
+    [verifyHelper.verifyToken, verifyHelper.isTeacher],
+    quiz.info
+  )
 
   .post('/disputesList', [verifyHelper.verifyToken], quiz.allDisputesPlayer)
   .get('/result/:id', [verifyHelper.verifyToken], quiz.statusDisputePlayer);
