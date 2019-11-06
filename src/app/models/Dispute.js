@@ -5,9 +5,10 @@ module.exports = (sequelize, DataTypes) => {
     unloggedUserId: DataTypes.INTEGER,
     status: DataTypes.STRING(10),
     score: DataTypes.INTEGER,
+    color: DataTypes.STRING(6),
   });
 
-  Dispute.associate = function (models) {
+  Dispute.associate = function(models) {
     Dispute.belongsTo(models.Quiz, {
       foreignKey: 'quizId',
     });
