@@ -111,6 +111,11 @@ router
     quiz.subjectsQuizList
   )
   .get(
+    '/allQuizzesSubjectTeacher/:id',
+    [verifyHelper.verifyToken, verifyHelper.isTeacher],
+    quiz.allQuizSubjectTeacher
+  )
+  .get(
     '/allQuizzesTeacher',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
     quiz.allQuizTeacher

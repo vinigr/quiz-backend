@@ -16,22 +16,24 @@ const signUp = async (req, res) => {
     },
   });
 
-  const {
-    name, email, password, groupUser = 1, userNotification,
-  } = req.body;
+  const { name, email, password, groupUser = 1, userNotification } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).send({ message: 'Some values are missing' });
   }
 
   if (!Helper.isValidEmail(email)) {
-    return res.status(400).send({ message: 'Please enter a valid email address' });
+    return res
+      .status(400)
+      .send({ message: 'Please enter a valid email address' });
   }
 
   const groupNum = parseFloat(groupUser);
 
   if (groupNum !== 1 && groupNum !== 2) {
-    return res.status(400).send({ message: 'Grupo de usuário não reconhecido!' });
+    return res
+      .status(400)
+      .send({ message: 'Grupo de usuário não reconhecido!' });
   }
 
   const hashPassword = Helper.hashPassword(password);
@@ -39,7 +41,10 @@ const signUp = async (req, res) => {
   try {
     const userExists = await LocalAuth.findOne({ where: { email } });
 
-    if (userExists) return res.status(400).send({ message: 'User with that EMAIL already exist' });
+    if (userExists)
+      return res
+        .status(400)
+        .send({ message: 'User with that EMAIL already exist' });
 
     const userLocal = await LocalAuth.create({
       email,
@@ -61,15 +66,17 @@ const signUp = async (req, res) => {
       to: `<${userLocal.email}>`,
       subject: `Bem vindo ${user.name}`,
       text:
-        'Você está recebendo isso porque você (ou outra pessoa) solicitou a criação de uma conta no nosso aplicativo.\n\n'
-        + 'Clique no link a seguir ou cole-o no seu navegador para concluir o processo dentro de dois dias após o recebimento:\n\n'
-        + `http://queston.netlify.com/confirmation/${confirmCode}\n\n`
-        + 'Se você não solicitou isso, ignore este e-mail.\n',
+        'Você está recebendo isso porque você (ou outra pessoa) solicitou a criação de uma conta no nosso aplicativo.\n\n' +
+        'Clique no link a seguir ou cole-o no seu navegador para concluir o processo dentro de dois dias após o recebimento:\n\n' +
+        `http://queston.netlify.com/confirmation/${confirmCode}\n\n` +
+        'Se você não solicitou isso, ignore este e-mail.\n',
     });
 
     if (userNotification) {
       const device = await DeviceNotification.findOne({
-        deviceUuid: userNotification,
+        where: {
+          deviceUuid: userNotification,
+        },
       });
 
       if (device) {
@@ -93,15 +100,21 @@ const confirmAccount = async (req, res) => {
 
   const userConfirm = await Helper.verifyConfirmation(token);
 
-  if (!userConfirm) return res.status(400).send({ message: 'Código de confirmação inválido ou expirado!' });
+  if (!userConfirm)
+    return res
+      .status(400)
+      .send({ message: 'Código de confirmação inválido ou expirado!' });
 
   try {
     const user = await User.findByPk(userConfirm);
 
-    if (!user) return res.status(403).send({ message: 'Usuário não encontrado!' });
+    if (!user)
+      return res.status(403).send({ message: 'Usuário não encontrado!' });
 
     if (user.active === true) {
-      return res.status(201).json({ message: 'Você já ativou sua conta anteriormente' });
+      return res
+        .status(201)
+        .json({ message: 'Você já ativou sua conta anteriormente' });
     }
     await user.update({
       active: true,
@@ -118,7 +131,8 @@ const signIn = async (req, res) => {
 
   if (!email) return res.status(400).send({ message: 'Email não informado!' });
 
-  if (!password) return res.status(400).send({ message: 'Senha não informada!' });
+  if (!password)
+    return res.status(400).send({ message: 'Senha não informada!' });
 
   const userLocal = await LocalAuth.findOne({ where: { email } });
 
@@ -174,7 +188,10 @@ const forgotPassword = async (req, res) => {
   try {
     const userLocal = await LocalAuth.findOne({ where: { email } });
 
-    if (!userLocal) return res.status(403).send({ message: 'E-mail não está associado a uma conta!' });
+    if (!userLocal)
+      return res
+        .status(403)
+        .send({ message: 'E-mail não está associado a uma conta!' });
 
     const token = crypto.randomBytes(20).toString('hex');
     await userLocal.update({
@@ -187,10 +204,10 @@ const forgotPassword = async (req, res) => {
       to: `<${userLocal.email}>`,
       subject: 'Link to reset password',
       text:
-        'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n'
-        + 'Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n'
-        + `http://localhost:3000/reset-password/${token}\n\n`
-        + 'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+        'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+        'Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n' +
+        `http://localhost:3000/reset-password/${token}\n\n` +
+        'If you did not request this, please ignore this email and your password will remain unchanged.\n',
     });
 
     return res.status(201).json({
@@ -218,7 +235,9 @@ const resetPassword = async (req, res) => {
     if (!userLocal) {
       return res
         .status(403)
-        .send({ message: 'O link de redefinição de senha é inválido ou expirou!' });
+        .send({
+          message: 'O link de redefinição de senha é inválido ou expirou!',
+        });
     }
 
     return res.status(201).json({ id: userLocal.id });
@@ -252,9 +271,11 @@ const updatePassword = async (req, res) => {
 const changePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
-  if (!currentPassword || !newPassword) return res.status(403).send({ message: 'Dados insuficientes!' });
+  if (!currentPassword || !newPassword)
+    return res.status(403).send({ message: 'Dados insuficientes!' });
 
-  if (currentPassword === newPassword) return res.status(403).send({ message: 'Senhas iguais!' });
+  if (currentPassword === newPassword)
+    return res.status(403).send({ message: 'Senhas iguais!' });
 
   try {
     const user = await User.findOne({
@@ -267,8 +288,12 @@ const changePassword = async (req, res) => {
 
     if (!user) return res.status(403).send({ message: 'Usuário inválido!' });
 
-    const comparePassword = Helper.comparePassword(user.l_auth.password, currentPassword);
-    if (!comparePassword) return res.status(403).send({ message: 'Senha atual incorreta!' });
+    const comparePassword = Helper.comparePassword(
+      user.l_auth.password,
+      currentPassword
+    );
+    if (!comparePassword)
+      return res.status(403).send({ message: 'Senha atual incorreta!' });
 
     const hashPassword = Helper.hashPassword(newPassword);
 
@@ -280,7 +305,7 @@ const changePassword = async (req, res) => {
         where: {
           id: user.local_auth,
         },
-      },
+      }
     );
 
     return res.status(201).json({ message: 'Senha alterada com sucesso!' });
