@@ -16,6 +16,7 @@ const {
 } = require('../models');
 
 const Helper = require('../helper');
+const generateColor = require('../helper/generatorColor');
 
 const createQuiz = async (req, res) => {
   const {
@@ -187,6 +188,39 @@ const subjectsQuizList = async (req, res) => {
       available,
       notAvailable,
       disputes,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error,
+    });
+  }
+};
+
+const allQuizSubjectTeacher = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id)
+    return res.status(400).send({
+      message: 'Disciplina não informada!',
+    });
+
+  try {
+    const listQuiz = await Quiz.findAll({
+      where: {
+        subjectId: id,
+      },
+    });
+
+    const available = listQuiz.filter(
+      item => item.expirationAt > new Date() || !item.expirationAt
+    );
+    const notAvailable = listQuiz.filter(
+      item => item.expirationAt < new Date() && item.expirationAt
+    );
+
+    return res.status(201).send({
+      available,
+      notAvailable,
     });
   } catch (error) {
     return res.status(400).send({
@@ -384,11 +418,14 @@ const startQuiz = async (req, res) => {
       ],
     });
 
+    const color = generateColor();
+
     const disputeCreated = await Dispute.create({
       quizId: id,
       userId: req.userId,
       status: 'started',
       score: 0,
+      color,
     });
 
     const dispute = await Dispute.findOne({
@@ -405,7 +442,7 @@ const startQuiz = async (req, res) => {
           attributes: ['name'],
         },
       ],
-      attributes: ['id', 'score', 'quizId'],
+      attributes: ['id', 'score', 'quizId', 'color'],
     });
 
     req.io.emit(`quiz${id}`, dispute);
@@ -823,7 +860,7 @@ const ranking = async (req, res) => {
       where: {
         quizId: id,
       },
-      attributes: ['id', 'score'],
+      attributes: ['id', 'score', 'color'],
       include: [
         {
           model: User,
@@ -879,6 +916,7 @@ module.exports = {
   createQuiz,
   find,
   subjectsQuizList,
+  allQuizSubjectTeacher,
   allQuizTeacher,
   questionsInQuiz,
   findQuizzes,
