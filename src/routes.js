@@ -7,6 +7,7 @@ const subject = require('./app/controllers/subject');
 const userSubject = require('./app/controllers/userSubject');
 const question = require('./app/controllers/question');
 const quiz = require('./app/controllers/quiz');
+const teacherStatistics = require('./app/controllers/teacherStatistics');
 
 router
   .post('/signup', player.signUp)
@@ -20,6 +21,12 @@ router
   .post('/logout', [verifyHelper.verifyToken], player.logout);
 
 router.get('/user', [verifyHelper.verifyToken], player.getUser);
+
+router.get(
+  '/teacher/statistics',
+  [verifyHelper.verifyToken, verifyHelper.isTeacher],
+  teacherStatistics.statistics
+);
 
 router
   .post(
