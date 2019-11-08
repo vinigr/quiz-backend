@@ -250,6 +250,12 @@ const statistics = async (req, res) => {
 
     const quizzesId = quizzes.length !== 0 && quizzes.map(quiz => quiz.id);
 
+    if (!quizzesId) {
+      return res
+        .status(403)
+        .send({ message: 'Dados insuficientes para gerar gráficos!' });
+    }
+
     const tops = await Dispute.findAll({
       where: {
         quizId: {
