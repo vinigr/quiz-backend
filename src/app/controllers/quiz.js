@@ -773,9 +773,7 @@ const find = async (req, res) => {
   try {
     const quiz = await Quiz.findOne({
       where: {
-        accessCode: {
-          [Op.like]: `%${code}%`,
-        },
+        accessCode: code,
       },
     });
 
@@ -828,19 +826,23 @@ const startQuizUnlogged = async (req, res) => {
       ],
     });
 
+    const color = generateColor();
+
     const dispute = await Dispute.create({
       quizId: quiz,
       unloggedUserId: user.id,
       status: 'started',
       score: 0,
+      color,
     });
+
+    req.io.emit(`quiz${quiz}`, dispute);
 
     return res.status(201).send({
       listQuiz,
       dispute,
     });
   } catch (error) {
-    console.log(error);
     return res.status(400).send({
       message: error,
     });
