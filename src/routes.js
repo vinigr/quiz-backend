@@ -84,6 +84,12 @@ router
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
     question.questionsMe
   )
+  .put(
+    '/questionMe/:questionId',
+    [verifyHelper.verifyToken, verifyHelper.isTeacher],
+    parser.single('image'),
+    question.editQuestionME
+  )
   .post(
     '/questionTf',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],

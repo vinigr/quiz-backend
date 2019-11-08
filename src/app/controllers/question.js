@@ -54,6 +54,63 @@ const questionsMe = async (req, res) => {
   }
 };
 
+const editQuestionME = async (req, res) => {
+  const { file = null } = req;
+
+  const { questionId } = req.params;
+  const {
+    question,
+    options,
+    answer,
+    explanation = null,
+    pathImage = null,
+    subjectId,
+  } = req.body;
+
+  if (!question || !options || !answer) {
+    return res.status(400).send({ message: 'Questão incompleta!' });
+  }
+
+  const jsonOptions = JSON.parse(options);
+
+  if (jsonOptions.length < 2) {
+    return res.status(400).send({ message: 'Questão incompleta!' });
+  }
+
+  const option3 = jsonOptions[2] ? jsonOptions[2].option : null;
+  const option4 = jsonOptions[3] ? jsonOptions[3].option : null;
+  const option5 = jsonOptions[4] ? jsonOptions[4].option : null;
+
+  try {
+    const questionResp = await MeQuestion.findOne({
+      where: {
+        id: questionId,
+      },
+    });
+
+    if (!questionResp) {
+      return res.status(400).send({ message: 'Questão não encontrada!' });
+    }
+
+    questionResp.question = question;
+    questionResp.pathImage = file ? file.url : pathImage;
+    questionResp.option1 = jsonOptions[0].option;
+    questionResp.option2 = jsonOptions[1].option;
+    questionResp.option3 = option3;
+    questionResp.option4 = option4;
+    questionResp.option5 = option5;
+    questionResp.answer = answer;
+    questionResp.explanation = explanation;
+    questionResp.subjectId = subjectId;
+
+    await questionResp.save();
+
+    return res.status(201).send();
+  } catch (error) {
+    return res.status(400).send({ message: error });
+  }
+};
+
 const createQuestionTF = async (req, res) => {
   const { file = null } = req;
 
@@ -138,6 +195,7 @@ const allQuestionsSubject = async (req, res) => {
 module.exports = {
   createQuestionME,
   questionsMe,
+  editQuestionME,
   createQuestionTF,
   questionsTf,
   questionsAll,
