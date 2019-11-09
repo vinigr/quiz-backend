@@ -101,6 +101,12 @@ router
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
     question.questionsTf
   )
+  .put(
+    '/questionTf/:questionId',
+    [verifyHelper.verifyToken, verifyHelper.isTeacher],
+    parser.single('image'),
+    question.editQuestionTF
+  )
   .get(
     '/questionsAll',
     [verifyHelper.verifyToken, verifyHelper.isTeacher],

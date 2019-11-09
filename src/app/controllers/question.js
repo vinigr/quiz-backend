@@ -150,6 +150,49 @@ const questionsTf = async (req, res) => {
   }
 };
 
+const editQuestionTF = async (req, res) => {
+  const { file = null } = req;
+
+  const { questionId } = req.params;
+
+  const {
+    question,
+    answer,
+    explanation = null,
+    subjectId,
+    pathImage = null,
+  } = req.body;
+
+  if (!question || !answer) {
+    return res.status(400).send({ message: 'Questão incompleta!' });
+  }
+
+  try {
+    const questionResp = await TfQuestion.findOne({
+      where: {
+        id: questionId,
+      },
+    });
+
+    if (!questionResp) {
+      return res.status(400).send({ message: 'Questão não encontrada!' });
+    }
+
+    questionResp.question = question;
+    questionResp.pathImage = file ? file.url : pathImage;
+    questionResp.answer = answer;
+    questionResp.explanation = explanation;
+    questionResp.subjectId = subjectId;
+
+    await questionResp.save();
+
+    return res.status(201).send();
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({ message: error });
+  }
+};
+
 const questionsAll = async (req, res) => {
   try {
     const questionsTf = await TfQuestion.findAll({
@@ -198,6 +241,7 @@ module.exports = {
   editQuestionME,
   createQuestionTF,
   questionsTf,
+  editQuestionTF,
   questionsAll,
   allQuestionsSubject,
 };
