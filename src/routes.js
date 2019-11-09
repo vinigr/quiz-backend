@@ -162,6 +162,11 @@ router
     [verifyHelper.verifyToken, verifyHelper.isTeacher],
     quiz.info
   )
+  .get(
+    '/switchBlockedQuiz/:id',
+    [verifyHelper.verifyToken, verifyHelper.isTeacher],
+    quiz.switchBlocked
+  )
 
   .post('/disputesList', [verifyHelper.verifyToken], quiz.allDisputesPlayer)
   .get('/result/:id', [verifyHelper.verifyToken], quiz.statusDisputePlayer);

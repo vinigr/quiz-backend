@@ -885,7 +885,7 @@ const ranking = async (req, res) => {
 
 const info = async (req, res) => {
   const { id } = req.params;
-  console.log('a');
+
   if (!id)
     return res.status(400).send({
       message: 'Quiz não informado!',
@@ -914,6 +914,33 @@ const info = async (req, res) => {
   }
 };
 
+const switchBlocked = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id)
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
+
+  try {
+    const quiz = await Quiz.findOne({
+      where: {
+        id,
+      },
+    });
+
+    quiz.blocked = !quiz.blocked;
+
+    await quiz.save();
+
+    return res.status(201).send();
+  } catch (error) {
+    return res.status(400).send({
+      message: error,
+    });
+  }
+};
+
 module.exports = {
   createQuiz,
   find,
@@ -930,4 +957,5 @@ module.exports = {
   startQuizUnlogged,
   ranking,
   info,
+  switchBlocked,
 };
