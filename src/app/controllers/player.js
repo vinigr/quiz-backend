@@ -233,11 +233,9 @@ const resetPassword = async (req, res) => {
     });
 
     if (!userLocal) {
-      return res
-        .status(403)
-        .send({
-          message: 'O link de redefinição de senha é inválido ou expirou!',
-        });
+      return res.status(403).send({
+        message: 'O link de redefinição de senha é inválido ou expirou!',
+      });
     }
 
     return res.status(201).json({ id: userLocal.id });
