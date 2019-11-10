@@ -29,7 +29,7 @@ const createQuestionME = async (req, res) => {
       option4,
       option5,
       answer,
-      explanation,
+      explanation: Boolean(explanation.trim()) ? explanation : null,
       user_id: req.userId,
       subjectId,
     });
@@ -100,7 +100,7 @@ const editQuestionME = async (req, res) => {
     questionResp.option4 = option4;
     questionResp.option5 = option5;
     questionResp.answer = answer;
-    questionResp.explanation = explanation;
+    questionResp.explanation = Boolean(explanation.trim()) ? explanation : null;
     questionResp.subjectId = subjectId;
 
     await questionResp.save();
@@ -126,7 +126,7 @@ const createQuestionTF = async (req, res) => {
       pathImage: file && file.url,
       answer,
       user_id: req.userId,
-      explanation,
+      explanation: Boolean(explanation.trim()) ? explanation : null,
       subjectId,
     });
 
@@ -181,7 +181,7 @@ const editQuestionTF = async (req, res) => {
     questionResp.question = question;
     questionResp.pathImage = file ? file.url : pathImage;
     questionResp.answer = answer;
-    questionResp.explanation = explanation;
+    questionResp.explanation = Boolean(explanation.trim()) ? explanation : null;
     questionResp.subjectId = subjectId;
 
     await questionResp.save();
