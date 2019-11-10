@@ -25,9 +25,9 @@ const createQuestionME = async (req, res) => {
       pathImage: file && file.url,
       option1: jsonOptions[0].option,
       option2: jsonOptions[1].option,
-      option3,
-      option4,
-      option5,
+      option3: Boolean(option3.trim()) ? option3 : null,
+      option4: Boolean(option4.trim()) ? option4 : null,
+      option5: Boolean(option5.trim()) ? option5 : null,
       answer,
       explanation: Boolean(explanation.trim()) ? explanation : null,
       user_id: req.userId,
@@ -96,9 +96,9 @@ const editQuestionME = async (req, res) => {
     questionResp.pathImage = file ? file.url : pathImage;
     questionResp.option1 = jsonOptions[0].option;
     questionResp.option2 = jsonOptions[1].option;
-    questionResp.option3 = option3;
-    questionResp.option4 = option4;
-    questionResp.option5 = option5;
+    questionResp.option3 = option3 && Boolean(option3.trim()) ? option3 : null;
+    questionResp.option4 = option4 && Boolean(option4.trim()) ? option4 : null;
+    questionResp.option5 = option5 && Boolean(option5.trim()) ? option5 : null;
     questionResp.answer = answer;
     questionResp.explanation = Boolean(explanation.trim()) ? explanation : null;
     questionResp.subjectId = subjectId;
@@ -188,7 +188,6 @@ const editQuestionTF = async (req, res) => {
 
     return res.status(201).send();
   } catch (error) {
-    console.log(error);
     return res.status(400).send({ message: error });
   }
 };
