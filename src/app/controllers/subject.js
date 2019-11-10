@@ -261,6 +261,9 @@ const statistics = async (req, res) => {
         quizId: {
           [Op.or]: quizzesId,
         },
+        userId: {
+          [Op.ne]: null,
+        },
       },
       include: [
         {

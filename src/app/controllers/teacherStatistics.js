@@ -39,6 +39,9 @@ const statistics = async (req, res) => {
         quizId: {
           [Op.or]: quizzesId,
         },
+        userId: {
+          [Op.ne]: null,
+        },
       },
       include: [
         {
@@ -52,7 +55,7 @@ const statistics = async (req, res) => {
       limit: 5,
     });
 
-    res.status(201).send({ tops, usersRegistered });
+    res.status(201).send({ tops });
   } catch (error) {
     console.log(error);
     return res.status(400).send(error);
