@@ -437,10 +437,6 @@ const startQuiz = async (req, res) => {
           model: User,
           attributes: ['id', 'name'],
         },
-        {
-          model: UnloggedUser,
-          attributes: ['name'],
-        },
       ],
       attributes: ['id', 'score', 'quizId', 'color'],
     });
@@ -577,6 +573,139 @@ const answerQuestion = async (req, res) => {
     await UserQuestion.create({
       questionId,
       userId: req.userId,
+      selectedAnswer: answer,
+      result,
+    });
+
+    return res.status(201).send({
+      answer: answerCurrent,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error,
+    });
+  }
+};
+
+const answerQuestionUnloggedUser = async (req, res) => {
+  const { disputeId, questionId, answer, userId } = req.body;
+
+  if (!disputeId)
+    return res.status(400).send({
+      message: 'Quiz não informado!',
+    });
+
+  if (!questionId)
+    return res.status(400).send({
+      message: 'Questão não informada!',
+    });
+
+  if (answer === null || answer === undefined)
+    return res.status(400).send({
+      message: 'Resposta não informada!',
+    });
+
+  try {
+    const userQuestion = await UserQuestion.findOne({
+      where: {
+        questionId,
+        unloggedUserId: userId,
+      },
+    });
+
+    if (userQuestion) {
+      return res.status(400).send({
+        message: 'Questão já respondida!',
+      });
+    }
+
+    const question = await QuestionQuiz.findOne({
+      where: {
+        id: questionId,
+      },
+      include: [
+        {
+          model: TfQuestion,
+          as: 'tfQuestion',
+        },
+        {
+          model: MeQuestion,
+          as: 'meQuestion',
+        },
+      ],
+    });
+
+    const answerCurrent = question.meQuestion
+      ? question.meQuestion.answer
+      : question.tfQuestion.answer;
+
+    if (answer === 'skip') {
+      await UserQuestion.create({
+        questionId,
+        unloggedUserId: userId,
+        selectedAnswer: 'skip',
+        result: 'skip',
+      });
+
+      return res.status(201).send({
+        answer: answerCurrent,
+      });
+    }
+
+    let result;
+    if (question.tfQuestion) {
+      question.tfQuestion.answer === answer
+        ? (result = 'hit')
+        : (result = 'error');
+    }
+
+    if (question.meQuestion) {
+      question.meQuestion.answer === answer
+        ? (result = 'hit')
+        : (result = 'error');
+    }
+
+    if (result === 'hit') {
+      await Dispute.increment(
+        {
+          score: 1,
+        },
+        {
+          where: {
+            id: disputeId,
+          },
+        }
+      );
+    }
+
+    if (result === 'error') {
+      await Dispute.decrement(
+        {
+          score: 1,
+        },
+        {
+          where: {
+            id: disputeId,
+            score: {
+              [Op.gt]: 0,
+            },
+          },
+        }
+      );
+    }
+
+    const dispute = await Dispute.findOne({
+      where: {
+        id: disputeId,
+      },
+      attributes: ['id', 'score', 'quizId'],
+    });
+
+    req.io.emit(`quiz${dispute.quizId}`, dispute);
+
+    await UserQuestion.create({
+      questionId,
+      unloggedUserId: userId,
       selectedAnswer: answer,
       result,
     });
@@ -763,6 +892,79 @@ const statusDisputePlayer = async (req, res) => {
   }
 };
 
+const statusDisputePlayerUnlogged = async (req, res) => {
+  const { id } = req.params;
+  const { userId } = req.body;
+  console.log(userId);
+  try {
+    const disputes = await Dispute.findAll({
+      where: {
+        quizId: id,
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name'],
+        },
+        {
+          model: UnloggedUser,
+          attributes: ['name'],
+        },
+      ],
+      attributes: {
+        include: ['id'],
+      },
+      order: [['score', 'DESC']],
+    });
+
+    if (!disputes || disputes.length === 0)
+      return res.status(400).send({
+        message: 'Nenhum quiz disputado!',
+      });
+
+    const questions = await QuestionQuiz.findAll({
+      where: {
+        quiz_id: id,
+      },
+      attributes: {
+        include: ['id'],
+      },
+      include: [
+        {
+          model: TfQuestion,
+          as: 'tfQuestion',
+        },
+        {
+          model: MeQuestion,
+          as: 'meQuestion',
+        },
+      ],
+    });
+
+    const questionsId = questions.map(question => question.id);
+
+    const answers = await UserQuestion.findAll({
+      where: {
+        questionId: {
+          [Op.or]: questionsId,
+        },
+        unloggedUserId: userId,
+      },
+      attributes: ['id', 'questionId', 'selectedAnswer'],
+    });
+
+    return res.status(201).send({
+      disputes,
+      questions,
+      answers,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error,
+    });
+  }
+};
+
 const find = async (req, res) => {
   const { code } = req.params;
   if (!code)
@@ -775,15 +977,33 @@ const find = async (req, res) => {
       where: {
         accessCode: code,
       },
+      releasedAt: {
+        [Op.lte]: new Date(),
+      },
     });
 
-    if (!quiz)
+    if (!quiz) {
       return res.status(400).send({
         message: 'Código inválido',
       });
+    }
+
+    if (quiz.blocked) {
+      return res.status(400).send({
+        message: 'Quiz não disponível',
+      });
+    }
+
+    if (quiz.expirationAt) {
+      if (quiz.expirationAt < new Date()) {
+        return res.status(400).send({
+          message: 'Quiz expirado!',
+        });
+      }
+    }
 
     return res.status(201).send({
-      quiz: quiz.id,
+      quiz: quiz,
     });
   } catch (error) {
     return res.status(400).send(error);
@@ -828,7 +1048,7 @@ const startQuizUnlogged = async (req, res) => {
 
     const color = generateColor();
 
-    const dispute = await Dispute.create({
+    const disputeCreated = await Dispute.create({
       quizId: quiz,
       unloggedUserId: user.id,
       status: 'started',
@@ -836,11 +1056,31 @@ const startQuizUnlogged = async (req, res) => {
       color,
     });
 
+    if (!disputeCreated) {
+      return res.status(400).send({
+        message: 'Erro ao criar partida!',
+      });
+    }
+
+    const dispute = await Dispute.findOne({
+      where: {
+        id: disputeCreated.id,
+      },
+      include: [
+        {
+          model: UnloggedUser,
+          attributes: ['name'],
+        },
+      ],
+      attributes: ['id', 'score', 'quizId', 'color'],
+    });
+
     req.io.emit(`quiz${quiz}`, dispute);
 
     return res.status(201).send({
       listQuiz,
       dispute,
+      user: user.id,
     });
   } catch (error) {
     return res.status(400).send({
@@ -951,9 +1191,11 @@ module.exports = {
   findQuizzes,
   startQuiz,
   answerQuestion,
+  answerQuestionUnloggedUser,
   quizStatus,
   allDisputesPlayer,
   statusDisputePlayer,
+  statusDisputePlayerUnlogged,
   startQuizUnlogged,
   ranking,
   info,

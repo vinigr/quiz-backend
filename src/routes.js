@@ -173,6 +173,8 @@ router
 
 router
   .get('/unloggedUser/:code', quiz.find)
-  .post('/unloggedUser/startQuiz', quiz.startQuizUnlogged);
+  .post('/unloggedUser/startQuiz', quiz.startQuizUnlogged)
+  .post('/unloggedUser/answerQuestion', quiz.answerQuestionUnloggedUser)
+  .post('/unloggedUser/result/:id', quiz.statusDisputePlayerUnlogged);
 
 module.exports = router;
