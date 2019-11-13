@@ -19,13 +19,11 @@ const signUp = async (req, res) => {
   const { name, email, password, groupUser = 1, userNotification } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).send({ message: 'Some values are missing' });
+    return res.status(400).send({ message: 'Dados insufucientes!' });
   }
 
   if (!Helper.isValidEmail(email)) {
-    return res
-      .status(400)
-      .send({ message: 'Please enter a valid email address' });
+    return res.status(400).send({ message: 'Entre com um email válido!' });
   }
 
   const groupNum = parseFloat(groupUser);
@@ -33,7 +31,7 @@ const signUp = async (req, res) => {
   if (groupNum !== 1 && groupNum !== 2) {
     return res
       .status(400)
-      .send({ message: 'Grupo de usuário não reconhecido!' });
+      .send({ message: 'Grupo do usuário não reconhecido!' });
   }
 
   const hashPassword = Helper.hashPassword(password);
@@ -42,9 +40,7 @@ const signUp = async (req, res) => {
     const userExists = await LocalAuth.findOne({ where: { email } });
 
     if (userExists)
-      return res
-        .status(400)
-        .send({ message: 'User with that EMAIL already exist' });
+      return res.status(400).send({ message: 'Email já cadastrado!' });
 
     const userLocal = await LocalAuth.create({
       email,
@@ -143,7 +139,7 @@ const signIn = async (req, res) => {
   const compareSenha = Helper.comparePassword(userLocal.password, password);
 
   if (!compareSenha) {
-    return res.status(400).send({ message: 'Invalid credentials' });
+    return res.status(400).send({ message: 'Senha incorreta!' });
   }
 
   userLocal.password = undefined;
@@ -176,7 +172,7 @@ const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    res.status(400).send({ message: 'Required email' });
+    res.status(400).send({ message: 'Email é necessário!' });
   }
 
   const transport = nodemailer.createTransport({
@@ -200,14 +196,14 @@ const forgotPassword = async (req, res) => {
     });
 
     transport.sendMail({
-      from: 'Eu mesmo <vinyirun4@hotmail.com>',
+      from: '"Quest On"',
       to: `<${userLocal.email}>`,
       subject: 'Link to reset password',
       text:
-        'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-        'Please click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\n' +
-        `http://localhost:3000/reset-password/${token}\n\n` +
-        'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+        'Você está recebendo isso porque você (ou outra pessoa) solicitou a redefinição da senha da sua conta.\n\n' +
+        'Clique no link a seguir ou cole-o no seu navegador para concluir o processo dentro de uma hora após o recebimento:\n\n' +
+        `https://queston.netlify.com/reset-password/${token}\n\n` +
+        'Se você não solicitou isso, ignore este e-mail e sua senha permanecerá inalterada.\n',
     });
 
     return res.status(201).json({
@@ -252,7 +248,8 @@ const updatePassword = async (req, res) => {
       where: { id },
     });
 
-    if (!userLocal) return res.status(403).send({ message: 'User not found' });
+    if (!userLocal)
+      return res.status(403).send({ message: 'Usuário não encontrado' });
 
     const hashPassword = Helper.hashPassword(password);
 
@@ -324,7 +321,8 @@ const getUser = async (req, res) => {
       },
     });
 
-    if (!user) return res.status(403).send({ message: 'User not found' });
+    if (!user)
+      return res.status(403).send({ message: 'Usuário não encontrado' });
 
     return res.status(200).send(user);
   } catch (error) {
