@@ -157,6 +157,7 @@ const subjectsQuizList = async (req, res) => {
         releasedAt: {
           [Op.lte]: new Date(),
         },
+        blocked: false,
       },
     });
 
@@ -346,6 +347,7 @@ const findQuizzes = async (req, res) => {
         releasedAt: {
           [Op.lte]: new Date(),
         },
+        blocked: false,
       },
       include: [
         {
