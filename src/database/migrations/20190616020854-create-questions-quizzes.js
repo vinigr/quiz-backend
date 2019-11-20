@@ -41,5 +41,5 @@ module.exports = {
   }),
 
 
-  down: queryInterface => queryInterface.dropTable('questions_quizzes'),
+  down: queryInterface => queryInterface.dropTable('question_quizzes'),
 };
